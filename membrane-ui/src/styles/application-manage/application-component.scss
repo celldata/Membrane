@@ -1,0 +1,643 @@
+@import "../base.scss";
+/*******************************************公共样式********************************************/
+.content{
+  .table-container{
+    overflow: auto;
+    padding: 10px 0;
+    .el-table {
+      width: 100%;
+      background: transparent !important;
+      th {
+        background: #EBF4FC;
+        color: $new-font-color;
+        text-align: center;
+        font-size: 12px;
+        border: none;
+        border-right: 1px solid #fff;
+      }
+      tr {
+        th {
+            padding: 6.5px 0;
+        }
+        td {
+          padding: 12px 0;
+          font-size: 12px;
+          color: $new-font-color;
+          background: $content-bgColor;
+          border-bottom: $td-border;
+          text-align: center;
+          .txt_underline {
+            color: $y-color;
+            text-decoration: underline;
+            cursor: pointer;
+          }
+          .iconfont {
+            color: $y-color;
+            margin: 0 7px;
+            font-size: 16px;
+            cursor: pointer;
+          }
+          .el-icon-edit {
+            color: $y-color;
+            margin: 0 7px;
+            font-size: 16px;
+            cursor: pointer;
+          }
+          .el-icon-delete{
+            color: $y-color;
+            margin: 0 7px;
+            font-size: 16px;
+            cursor: pointer;
+          }
+
+          .resource-name{
+            color: $y-color;
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
+
+#data-access .dialog,#data-detail .dialog{
+  .el-dialog__body{
+    .el-form .el-form-item{
+      .el-select{
+        width: 100% !important;
+      }
+    }
+    .mg10{
+      margin-left: 10px;
+    }
+  }
+}
+
+.el-dialog__body{
+  .el-form{
+    .el-form-item{
+      .el-select{
+        width: 100%;
+      }
+    }
+    .el-textarea{
+      margin-top: 5px !important;
+    }
+    .mg10{
+      margin-left: 10px;
+    }
+  }
+}
+
+
+#application-manage{
+  .el-card {
+    width: 100%;
+    height: 200px;
+    .el-card__header,.el-card__body{
+      padding: 18px 12px;
+      box-sizing: border-box;
+      text-align: left;
+      div.text.item{
+        display: flex;
+        flex-direction: column;
+        .content{
+          color: #7C7C7C;
+          height: 80px;
+          ul>li{
+            height: 30px;
+            line-height: 30px;
+            display: flex;
+            flex-direction: row;
+            span{
+              width: 50%;
+            }
+          }
+          ul>li.desc{
+            span{
+              width: 100%;
+            }
+          }
+        }
+        .bottom.clearfix{
+          height: 30px;
+
+          .el-button{
+            font-size: 12px;
+            color: $new-font-color;
+          }
+          .edit{
+            color: $y-color;
+          }
+          .routeTag{
+            line-height: 40px;
+          }
+          .delete{
+            color: $delete-color;
+          }
+        }
+      }
+    }
+    .el-card__header{
+      font-weight: bold;
+    }
+    .el-card__body{
+    }
+  }
+  .el-card{
+    box-shadow: none;
+    -webkit-box-shadow:none;
+  }
+  .el-card:hover{
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+    -webkit-box-shadow:0 2px 12px 0 rgba(0,0,0,0.1);
+  }
+  .el-form {
+    .el-form-item {
+      margin-bottom: 19px;
+      .el-switch{
+        margin-right: 24px;
+      }
+      .el-input-number--mini{
+        width: 100%;
+      }
+
+      .el-radio.is-bordered{
+        border: none;
+        padding: 7px 3px 0px;
+      }
+      .el-radio{
+        margin-right: 24px;
+      }
+      .el-switch__core{
+        width: 24px !important;
+        height: 14px;
+        border-radius: 7px;
+      }
+      .el-switch__core:after{
+        width: 10px;
+        height: 10px;
+      }
+      .el-switch.is-checked .el-switch__core::after{
+        margin-left: -11px;
+      }
+    }
+    .el-form-item.appId{
+      text-align: left;
+
+      span{
+        font-size: 12px;
+      }
+    }
+    .el-form-item__label {
+      text-align: left;
+    }
+    .mg10{
+      margin-left: 10px;
+      .el-button:disabled{
+        color: #A0C4F1;
+      }
+      .el-button.showColor{
+        color: $new-font-color;
+      }
+    }
+    .el-form-item__error {
+      padding-top: 0;
+      white-space: nowrap;
+    }
+
+    .uploadLogo{
+      display: flex;
+      height: 64px;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: baseline;
+      img{
+        margin-right: 12px;
+        width:96px;
+        height:64px
+      }
+
+      .el-button{
+        text-decoration: underline;
+      }
+    }
+  }
+  .permisson-dialog .el-dialog__body .app-content,.detail-dialog .el-dialog__body .app-content{
+    height: 400px;
+    display: flex;
+    flex-direction: row;
+    .basic,.roles{
+      width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    .app-detail li.li-logo{
+      height: 64px;
+    }
+    .aside-dialog,.main-dialog{
+      padding: 0 20px;
+      box-sizing: border-box;
+      height: 400px;
+
+      .el-table{
+        margin-top: 14px;
+        .el-table__row{
+          .cell{
+            i{
+              color: $y-color;
+            }
+            i:first-child{
+              margin-right: 9px;
+            }
+            i:hover{
+              cursor: pointer;
+            }
+          }
+        }
+      }
+    }
+    .aside-dialog{
+      border-right: 1px solid #ccc;
+      .el-tree{
+        .el-tree-node__label{
+          font-size: 12px;
+        }
+        .el-tree-node__content:hover{
+          background-color: #ffffff;
+        }
+
+      }
+      .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{
+        background-color: #ffffff !important;
+        color: $y-color;
+      }
+    }
+    .main-dialog{
+      .el-row.btn{
+        justify-content: flex-end;
+      }
+      .delsBtn{
+        background-color: #ffffff;
+        color: $y-color;
+        border:1px solid  $y-color;
+      }
+      .disBtn{
+        background-color:#fff ;
+        color: #A0C4F1;
+        border: 1px solid #A0C4F1;
+      }
+    }
+  }
+  .detail-dialog .el-dialog__body{
+    .dialog-content{
+      height: auto;
+    }
+  }
+  .certificate-detail{
+    width: 100%;
+  }
+  .certificate-detail li,.app-detail li{
+    text-align: left;
+    width: 100%;
+    height: 34px;
+    line-height: 34px;
+    display: flex;
+    flex-direction: row;
+    span:first-child{
+      img{
+        width: 96px;
+        height: 64px;
+      }
+    }
+    span{
+      width: 50%;
+      i{
+        font-style: normal;
+        font-size: 12px;
+      }
+      i.label-name{
+        color: $new-font-color;
+        font-weight: bold;
+      }
+    }
+  }
+  .certificate-detail li{
+    span.label-name{
+      width: 130px;
+    }
+  }
+  // 权限录入-新增模块 CSS
+  .add-module.el-dialog__wrapper{
+    .el-select{
+      width: 100%;
+    }
+    .el-dialog__footer{
+      text-align: right !important;
+      .el-button{
+        padding: 0px;
+        width: 54px;
+        height: 24px;
+        line-height: 22px;
+        font-size: 12px;
+      }
+      .el-button:first-child{
+        border: none;
+        color: $y-color;
+        margin-right:24px;
+      }
+      .el-button:first-child:hover{
+        background-color: #ffffff;
+
+      }
+    }
+  }
+  .appDialog .app-content i.clientName{
+    font-style: normal;
+    font-weight: bold;
+    color: $y-color;
+  }
+  .appDialog .app-content{
+    .el-form{
+      i.error{
+        display: inline-block;
+        width: 100%;
+        font-size: 12px;
+        text-align: left;
+        color: #cc3d3d;
+        font-style: normal;
+      }
+      .el-form-item{
+        .el-select{
+          width: 100%;
+        }
+      }
+    }
+  }
+  .appDialog.permission-detail{
+    .app-content{
+      height: 400px !important;
+      overflow-y: auto;
+    }
+
+  }
+  .el-divider__text{
+    font-size: 15px;
+    font-weight: bold;
+    color: $new-font-color;
+  }
+  .appDialog.detail-dialog .el-dialog__body{
+    height: 400px !important;
+    overflow: hidden;
+    padding: 10px 30px;
+    .roles{
+      padding-bottom: 20px;
+      .search{
+        width: 40%;
+        margin-bottom: 15px;
+        float: right;
+      }
+      .el-table{
+        th{
+          color:$new-font-color;
+        }
+        td{
+          color:#606266;
+        }
+      }
+      .block{
+        margin-top: 15px;
+        font-size: 12px;
+        .el-pagination{
+          text-align: right;
+          font-size: 12px;
+          span,.el-input__inner{
+            color: $new-font-color;
+          }
+
+        }
+      }
+    }
+    .cmp-scroll{
+      height: 650px;
+      .el-scrollbar__wrap{
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+    }
+    .basic,.roles{
+     padding: 0 40px;
+     box-sizing: border-box;
+    }
+  }
+  #app-detail{
+    .el-dialog .el-dialog__body{
+      height: 650px !important;
+    }
+  }
+}
+
+/***************************************************************permission-details.vue CSS**********************************************/
+#permission-detail{
+  width: 100%;
+  z-index: 100000;
+  .el-tabs{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    .el-tabs__header{
+      border: none;
+      margin: 0;
+      .el-tabs__nav{
+        border: none;
+      }
+      .el-tabs__item{
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        height: 30px;
+        line-height: 30px;
+        font-size: 12px;
+        margin-right: 10px;
+        border: none;
+        background-color: $content-bgColor;
+      }
+    }
+    .el-tabs__content{
+      flex: 1;
+      padding: 10px 24px ;
+      background-color: $content-bgColor;
+    }
+  }
+}
+
+/***************************************************************data.vue CSS**********************************************************/
+#data-access{
+  .card-box{
+    max-height: 500px;
+    overflow-y: auto;
+    .header{
+      .col-span,.select-container{
+        display: flex;
+        flex-direction: row;
+        height: 30px;
+        align-items: center;
+        i.icon{
+          width: 5px;
+          height: 20px;
+          background-color: $y-color;
+          margin-right: 4px;
+        }
+
+        span.col-font{
+          font-weight: bold;
+          color: $new-font-color;
+        }
+      }
+      .select-container{
+       justify-content: flex-end;
+      }
+    }
+    .content{
+      .table-container{
+        padding: 10px 0;
+        box-sizing: border-box;
+        .el-table {
+          width: 100%;
+          background: transparent !important;
+          th {
+            background: #EBF4FC;
+            color: $new-font-color;
+            text-align: center;
+            font-size: 12px;
+            border: none;
+            border-right: 1px solid #fff;
+          }
+          tr {
+            th {
+                padding: 6.5px 0;
+            }
+            td {
+              padding: 12px 0;
+              font-size: 12px;
+              color: $new-font-color;
+              background: $content-bgColor;
+              border-bottom: $td-border;
+              text-align: center;
+              .txt_underline {
+                color: $y-color;
+                text-decoration: underline;
+                cursor: pointer;
+              }
+              .iconfont {
+                color: $y-color;
+                margin: 0 7px;
+                font-size: 16px;
+                cursor: pointer;
+              }
+              .el-icon-edit {
+                color: $y-color;
+                margin: 0 7px;
+                font-size: 16px;
+                cursor: pointer;
+              }
+              .el-icon-delete{
+                color: $y-color;
+                margin: 0 7px;
+                font-size: 16px;
+                cursor: pointer;
+              }
+
+              .resource-name{
+                color: $y-color;
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/***************************************************************data-details.vue CSS**********************************************************/
+#data-detail{
+  width: 100%;
+  background-color: $content-bgColor;
+  padding: 10px 24px;
+  box-sizing: border-box;
+  .title{
+    height: 30px;
+    line-height: 30px;
+    color: $new-font-color;
+    font-size: 20px;
+
+    span.name{
+      margin-left: 15px;
+    }
+  }
+  .details-content{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 10px;
+    box-sizing: border-box;
+
+    .el-row{
+      .fr{
+        text-align: right;
+      }
+    }
+  }
+  .basic-info{
+    height: 150px;
+
+    ul{
+      li{
+        height: 35px;
+        line-height: 35px;
+
+        span.label,span.value{
+          color: $new-font-color;
+        }
+        span.label{
+          font-weight: bold;
+        }
+      }
+      li:not(last-child){
+        display: inline-block;
+        width: 33%;
+      }
+      li:last-child{
+        width: 100%;
+      }
+    }
+  }
+}
+
+/***************************************************************function-permission.vue CSS**********************************************************/
+#function-permission{
+  display: flex;
+  height: 100%;
+
+  .el-aside{
+    border-right: 1px solid #ccc;
+    .el-tree{
+      .el-tree-node__label{
+        font-size: 12px;
+      }
+      .expanded .el-tree-node__expand-icon{
+        color: $y-color;
+      }
+    }
+  }
+
+  .el-main{
+    flex: 1;
+    padding: 0;
+    div.head-content{
+      height: 45px;
+      line-height: 45px;
+      text-align:right;
+    }
+  }
+
+}

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.ExternalAuthMapper">
+
+
+
+    <insert id="addExternalAuth" parameterType="cloud.celldata.membrane.pojo.entity.ExternalAuthEntity"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into sso_external_auth
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="auth.type != null">
+                type,
+            </if>
+            <if test="auth.name != null">
+                name,
+            </if>
+            <if test="auth.base != null">
+                base,
+            </if>
+            <if test="auth.url != null">
+                url,
+            </if>
+            <if test="auth.userDn != null">
+                user_dn,
+            </if>
+            <if test="auth.desc != null">
+                auth_desc,
+            </if>
+            <if test="auth.pwd != null">
+                pwd,
+            </if>
+            <if test="auth.filter != null">
+                filter,
+            </if>
+            <if test="userId != null">
+                creator_id,
+            </if>
+            <if test="auth.sycUser != null">
+                syc_user,
+            </if>
+            <if test="auth.sycSche!= null">
+                syc_sche,
+            </if>
+            <if test="auth.sycFixed!= null">
+                syn_fixed,
+            </if>
+                enable_flag,
+                create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="auth.type != null">
+                #{auth.type},
+            </if>
+            <if test="auth.name != null">
+                #{auth.name},
+            </if>
+            <if test="auth.base != null">
+                #{auth.base},
+            </if>
+            <if test="auth.url != null">
+                #{auth.url},
+            </if>
+            <if test="auth.userDn != null">
+                #{auth.userDn},
+            </if>
+            <if test="auth.desc != null">
+                #{auth.desc},
+            </if>
+            <if test="auth.pwd != null">
+                #{auth.pwd},
+            </if>
+            <if test="auth.filter != null">
+                #{auth.filter},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="auth.sycUser != null">
+                #{auth.sycUser},
+            </if>
+            <if test="auth.sycSche != null">
+                #{auth.sycSche},
+            </if>
+            <if test="auth.sycFixed != null">
+                #{auth.sycFixed},
+            </if>
+            1,
+            now(),
+        </trim>
+    </insert>
+
+    <resultMap id="externalAuthList" type="cloud.celldata.membrane.pojo.entity.ExternalAuthEntity">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="type" jdbcType="INTEGER" property="type" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="base" jdbcType="VARCHAR" property="base"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="auth_desc" jdbcType="VARCHAR" property="desc"/>
+        <result column="user_dn" jdbcType="VARCHAR" property="userDn"/>
+        <result column="pwd" jdbcType="VARCHAR" property="pwd"/>
+        <result column="filter" jdbcType="VARCHAR" property="filter"/>
+        <result column="create_time" jdbcType="TIMESTAMP"   property="createTime"/>
+        <result column="USER_NAME" jdbcType="VARCHAR" property="createName"/>
+        <result column="syc_user" jdbcType="INTEGER" property="sycUser"/>
+        <result column="syc_sche" jdbcType="INTEGER" property="sycSche"/>
+        <result column="syn_fixed" jdbcType="INTEGER" property="sycFixed"/>
+    </resultMap>
+
+    <select id="selectAllExternalAuth" resultMap="externalAuthList">
+            SELECT
+                i.id,
+                i.type,
+                i.name,
+                i.base,
+                i.url,
+                i.user_dn,
+                i.auth_desc,
+                i.pwd,
+                i.filter,
+                i.create_time,
+                j.USER_NAME,
+                i.syc_user,
+                i.syc_sche,
+                i.syn_fixed
+            FROM
+                sso_external_auth i
+            LEFT JOIN sso_user AS j ON i.creator_id = j.ID and j.ENABLE_FLAG =1
+            WHERE
+                i.enable_flag = 1
+            <if test="id != null">
+                AND i.id = #{id}
+            </if>
+            <if test="type != null">
+                AND i.type = #{type}
+            </if>
+            <if test="name != null">
+                AND i.name like concat('%',#{name},'%')
+            </if>
+    </select>
+
+    <select id="countExternalAuthNameByName" resultType="java.lang.Integer">
+        select count(1) from sso_external_auth where name = #{name,jdbcType=VARCHAR} and ENABLE_FLAG = 1
+        <if test="id != null">
+            AND <![CDATA[id<>#{id,jdbcType=INTEGER}]]>
+        </if>
+    </select>
+
+    <update id="updateExternalAuth" >
+        UPDATE sso_external_auth
+        <set>
+            <if test="null != auth.name" >
+                name = #{auth.name,jdbcType=VARCHAR},
+            </if>
+            <if test="null != auth.base" >
+                base = #{auth.base,jdbcType=VARCHAR},
+            </if>
+            <if test="null != auth.url" >
+                url = #{auth.url,jdbcType=VARCHAR},
+            </if>
+            <if test="null != auth.userDn" >
+                user_dn = #{auth.userDn,jdbcType=VARCHAR},
+            </if>
+            <if test="null != auth.pwd" >
+                pwd = #{auth.pwd,jdbcType=VARCHAR},
+            </if>
+            <if test="null != auth.desc" >
+                auth_desc = #{auth.desc,jdbcType=VARCHAR},
+            </if>
+            <if test="null != auth.filter" >
+                filter = #{auth.filter,jdbcType=VARCHAR},
+            </if>
+            <if test="null != auth.sycUser" >
+                syc_user = #{auth.sycUser,jdbcType=VARCHAR},
+            </if>
+            <if test="null != auth.sycSche" >
+                syc_sche = #{auth.sycSche,jdbcType=VARCHAR},
+            </if>
+            <if test="null != auth.sycFixed" >
+                syn_fixed = #{auth.sycFixed,jdbcType=VARCHAR},
+            </if>
+            update_time = now(),
+            updater_id = #{userId,jdbcType=INTEGER}
+        </set>
+        <where>
+            id = #{auth.id,jdbcType=INTEGER}
+            and enable_flag = 1
+        </where>
+    </update>
+
+    <update id="removeExternalAuth">
+        UPDATE sso_external_auth
+        SET
+          enable_flag =0,
+          update_time = now(),
+          updater_id = #{userId,jdbcType=INTEGER}
+        where id in
+        <foreach collection="idList" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </update>
+    
+    
+    <select id="countAppUseExternalAuth" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM
+            sso_client
+        WHERE
+            ENABLE_FLAG = 1
+        AND EXTERNAL_AUTH_ID IN
+        <foreach collection="idList" open="(" close=")" item="id" separator=",">
+        #{id}
+        </foreach>
+    </select>
+</mapper>

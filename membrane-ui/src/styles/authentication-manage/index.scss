@@ -1,0 +1,137 @@
+@import "../base.scss";
+
+#auth-manage{
+	padding: 10px 24px;
+	width:100%;
+  background:$content-bgColor;
+  .select-container {
+		color: $new-font-color;
+		padding: 10px 0;
+		display:flex;
+    flex-direction:row;
+    .fr{
+      text-align: right;
+    }
+		.el-button{
+			padding: 8px 15px;
+			border-radius: 2px;
+			font-size: 12px;
+      background: $y-color;
+      color: #fff;
+		}
+		.el-button:hover{
+			background:rgba(61,144,248,0.8);
+    }
+    .is-disabled,.is-disabled:hover{
+      color: #fff;
+      background-color: #a0cfff;
+      border-color: #a0cfff;
+    }
+    .el-select {
+      padding-left: 10px;
+      margin-right: 20px;
+      width: 160px;
+      height: 25px;
+      .el-input__inner {
+        background: $input-color;
+        border: 0;
+        color: $new-font-color;
+        border-radius: 2px;
+        font-size: 12px;
+        padding: 5px;
+      }
+      .el-input__icon {
+        line-height: 1;
+      }
+    }
+    .el-cascader {
+      width: 160px;
+      height: 25px;
+      padding-left: 10px;
+      margin-right: 20px;
+      .el-input {
+        .el-input__inner {
+          background: $input-color;
+          border: 0;
+          border-radius: 2px;
+          font-size: 12px;
+        }
+      }
+      .el-cascader__label {
+        color: $new-font-color;
+        span {
+          color: $new-font-color;
+        }
+      }
+    }
+    .search {
+      background: $input-color;
+      width: 160px;
+      height: 25px;
+      .el-input__inner {
+        width: 132px;
+        height: 25px;
+        background: $input-color;
+        border: 0;
+        color: $new-font-color;
+        padding: 5px;
+      }
+    }
+
+    #col_fr{
+      text-align: right;
+
+      .el-button{
+        border:none;
+      }
+    }
+  }
+	.table-container {
+		overflow: auto;
+    padding: 10px 0;
+
+    span.spanBtn{
+      cursor: pointer;
+      margin-right: 10px;
+      color: $y-color;
+    }
+
+    span.spanBtn2{
+      cursor: pointer;
+    }
+
+    div.paging{
+      margin-top:10px;
+    }
+  }
+  .el-table {
+    background: transparent !important;
+    th {
+      background: $th-bg;
+      color: $new-font-color;
+      text-align: center;
+      font-size: 12px;
+      border: none;
+      border-right: 1px solid $content-bgColor;
+      height: 30px;
+      padding: 0;
+    }
+    tr {
+      td {
+        font-size: 12px;
+        color: $new-font-color;
+        background: $content-bgColor;
+        border-bottom: $td-border;
+        text-align: center;
+        .txt_underline {
+          color: $y-color;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  .el-table::before {
+    height: 0;
+  }
+}

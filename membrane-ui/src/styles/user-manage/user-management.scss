@@ -1,0 +1,314 @@
+// 用户管理 CSS
+@import "../base.scss";
+#user-manage {
+	padding: 10px 24px;
+	width:100%;
+	background:$content-bgColor;
+  .el-dialog__title{
+    font-weight: bold;
+  }
+  .el-transfer .el-transfer-panel__body {
+  		overflow-x: hidden!important;
+  		.el-transfer-panel__item.el-checkbox {
+		  	width: 100%;
+		  	float: left;
+		  }
+  }
+  .select-container {
+		color: $new-font-color;
+		padding: 10px 0;
+		display:flex;
+    flex-direction:row;
+		.el-button {
+			padding: 8px 15px;
+			border-radius: 2px;
+			font-size: 12px;
+			background: $y-color;
+		}
+		.el-button:hover{
+			background:rgba(61,144,248,0.8);
+		}
+    .el-select {
+      padding-left: 10px;
+      margin-right: 20px;
+      width: 160px;
+      height: 25px;
+      .el-input__inner {
+        background: $input-color;
+        border: 0;
+        color: $new-font-color;
+        border-radius: 2px;
+        font-size: 12px;
+        padding: 5px;
+      }
+      .el-input__icon {
+        line-height: 1;
+      }
+    }
+    .el-cascader {
+      width: 160px;
+      height: 25px;
+      padding-left: 10px;
+      margin-right: 20px;
+      .el-input {
+        .el-input__inner {
+          background: $input-color;
+          border: 0;
+          border-radius: 2px;
+          font-size: 12px;
+        }
+      }
+      .el-cascader__label {
+        color: $new-font-color;
+        span {
+          color: $new-font-color;
+        }
+      }
+    }
+    .search {
+      background: $input-color;
+      width: 160px;
+      height: 25px;
+      .el-input__inner {
+        width: 132px;
+        height: 25px;
+        background: $input-color;
+        border: 0;
+        color: $new-font-color;
+        padding: 5px;
+      }
+    }
+
+    #col_fr{
+      text-align: right;
+
+      .el-button{
+        border:none;
+      }
+    }
+  }
+	.table-container {
+		overflow: auto;
+    padding: 10px 0;
+
+    span.spanBtn{
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    span.spanBtn2{
+      cursor: pointer;
+    }
+
+    div.paging{
+      margin-top:10px;
+    }
+	}
+  .el-table {
+    background: transparent !important;
+    th {
+      background: $th-bg;
+      color: $new-font-color;
+      text-align: center;
+      font-size: 12px;
+      border: none;
+      border-right: 1px solid $content-bgColor;
+      height: 30px;
+      padding: 0;
+    }
+    tr {
+      td {
+        font-size: 12px;
+        color: $new-font-color;
+        background: $content-bgColor;
+        border-bottom: $td-border;
+        text-align: center;
+        .txt_underline {
+          color: $y-color;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+        .iconfont,
+        .el-icon-remove-outline,
+        .el-icon-edit {
+          font-size: 16px;
+          color: $y-color;
+        }
+      }
+    }
+  }
+  .el-table::before {
+    height: 0;
+  }
+  .el-form {
+    .el-form-item {
+      margin-bottom: 10px;
+    }
+    .el-form-item__label {
+      text-align: center;
+    }
+    .el-input {
+      width: 430px;
+    }
+    .el-input__inner {
+      width: 430px;
+    }
+    .el-form-item__error {
+      padding-top: 0;
+      white-space: nowrap;
+    }
+  }
+  .resetUserPage {
+    .el-dialog .el-form .el-form-item__label {
+      text-align: left;
+    }
+    .el-dialog {
+      .resetP {
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(50, 50, 50, 1);
+        line-height: 20px;
+        text-align: center;
+      }
+      .el-dialog__footer .el-button:last-child {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 1);
+        margin-right: 4px;
+      }
+      .el-dialog__footer {
+        text-align: right;
+        .el-button:first-child {
+          margin-right: 14px;
+        }
+      }
+      .detailCss {
+        height: 346px;
+        span {
+          font-size: 12px;
+          font-weight: 400;
+          color: rgba(50, 50, 50, 1);
+          display: inline-block;
+          padding-bottom: 16px;
+        }
+
+        span.prototypeName{
+          font-weight: bold;
+        }
+        span.prototypeValue{
+          padding-right: 32px;
+        }
+      }
+    }
+  }
+  .plusUserPage {
+    .userNameSpan{
+      font-weight: bold;
+      font-size: 12px;
+      color: #323232;
+    }
+    .emptyDate {
+      position: absolute;
+      color: #cc3d3d;
+      font-size: 12px;
+      line-height: 17px;
+    }
+    .el-scrollbar__wrap {
+      box-sizing: border-box;
+      overflow-x: hidden;
+      padding-right: 5px;
+    }
+    .el-dialog {
+      height: 652px;
+      display: flex;
+      flex-direction: column;
+      #editUserTip{
+        color:#adadad;
+        font-size:12px;
+        margin-left:10px;
+        padding-top:5px;
+      }
+      .el-dialog__header {
+        z-index: 10;
+        background: #fff;
+        height: 56px;
+      }
+      .el-dialog__body {
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: 100%;
+        padding: 0 0;
+        padding-left: 20px;
+        .el-transfer-panel .el-transfer-panel__header {
+          background: #ececec;
+          border-bottom: 1px solid #a4a4a4;
+        }
+        /*穿梭框*/
+        .el-transfer {
+          margin-top: 4px;
+          .el-transfer-panel__body {
+            height: 185px;
+            overflow: auto;
+            .el-transfer-panel__list{
+                overflow: initial;
+            }
+          }
+          .el-transfer-panel {
+            width: 280px;
+            background: #ececec;
+          }
+          .el-transfer__buttons{
+            padding: 0 10px;
+            box-sizing: border-box;
+          }
+          .el-button{
+            padding: 0;
+            height: 18px;
+            width: 18px;
+            display: block;
+            margin: 15px auto;
+            border-radius: 50%;
+          }
+        }
+      }
+      .el-dialog__footer {
+        z-index: 10;
+
+      }
+      .el-form {
+        .el-input__inner,.el-input--mini {
+          width: 627px;
+        }
+        .el-form-item__label {
+          text-align: left;
+        }
+        .addPhone {
+          .phoneP {
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(173, 173, 173, 1);
+            line-height: 17px;
+          }
+        }
+      }
+      .el-dialog__footer .el-button:last-child {
+        font-size: 12px;
+        font-weight: 400;
+
+      }
+    }
+    #transferDiv{
+      position: relative;
+      padding-bottom: 12px;
+    }
+  }
+  .el-tooltip__popper.is-light {
+    border: none !important;
+    box-shadow: 0px 2px 10px 2px rgba(0, 0, 0, 0.1)!important;
+  }
+  .el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
+    border-top-color: #fff!important;
+  }
+  .el-message-box{
+    margin-right: 15px !important;
+  }
+}

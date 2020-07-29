@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.ApiMapper">
+        <resultMap id="resultMap" type="cloud.celldata.membrane.pojo.entity.ApiEntity">
+            <id column="id" property="id" jdbcType="INTEGER" />
+            <result column="PARENT_ID" property="parentId" jdbcType="INTEGER"/>
+            <result column="CLIENT_ID" property="clientId" jdbcType="INTEGER"/>
+            <result column="URI" property="uri" jdbcType="VARCHAR"/>
+            <result column="API_DESC" property="apiDesc" jdbcType="VARCHAR"/>
+            <result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR"/>
+            <result column="CREATOR_ID" property="creatorId" jdbcType="VARCHAR"/>
+            <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+            <result column="UPDATER_ID" property="updateId" jdbcType="VARCHAR"/>
+            <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+            <result column="API_NAME" property="apiName" jdbcType="VARCHAR"/>
+            <result column="API_NUM" property="apiNum" jdbcType="VARCHAR"/>
+        </resultMap>
+
+    <select id="getApiByRoleId" resultMap="resultMap" parameterType="cloud.celldata.membrane.pojo.bo.PrivilegeRoleDTO">
+       SELECT a.*
+        FROM sso_role_api ra, sso_api a
+        <where>
+            ra.API_ID = a.ID
+            <if test="roleId!=null">
+                and ra.role_id = #{roleId}
+            </if>
+            <if test="clientId!=null">
+                and a.client_id=#{clientId}
+            </if>
+        </where>
+         and ra.ENABLE_FLAG = 1
+    </select>
+
+
+    <insert id="addRoleApi" parameterType="cloud.celldata.membrane.pojo.entity.RoleApiEntity">
+        insert  into sso_role_api
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id!=null">
+                ID,
+            </if>
+            <if test="roleId!=null">
+                ROLE_ID,
+            </if>
+            <if test="apiId!=null">
+                API_ID,
+            </if>
+            <if test="enableFlag!=null">
+                ENABLE_FLAG,
+            </if>
+            <if test="creatorId!=null">
+                CREATOR_ID,
+            </if>
+            <if test="createTime!=null">
+                CREATE_TIME,
+            </if>
+            <if test="updateId!=null">
+                UPDATER_ID,
+            </if>
+            <if test="updateTime!=null">
+                UPDATE_TIME,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id!=null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="roleId!=null">
+                #{roleId,jdbcType=INTEGER},
+            </if>
+            <if test="apiId!=null">
+                #{apiId,jdbcType=INTEGER},
+            </if>
+            <if test="enableFlag!=null">
+                #{enableFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creatorId!=null">
+                #{creatorId,jdbcType=INTEGER},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateId!=null">
+                #{updateId,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+        <!-- 指定结果类型resultType，keyProperty是属性，自动返回到属性id中，order是次序，after是指获取id是在于插入后 -->
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <insert id="insertModuleAndFunction" parameterType="cloud.celldata.membrane.pojo.entity.ApiEntity"
+            useGeneratedKeys="true" keyProperty="id">
+          INSERT INTO sso_api(PARENT_ID,CLIENT_ID,TYPE,API_NAME,API_NUM,ENABLE_FLAG,CREATOR_ID,CREATE_TIME,IS_TREE)
+          VALUE
+            ( #{parentId},
+              #{clientId},
+              #{type},
+              #{apiName},
+              #{apiNum},
+              #{enableFlag},
+              #{creatorId},
+              #{createTime},
+              #{isTree}
+             )
+    </insert>
+
+    <insert id="insertUrl" parameterType="cloud.celldata.membrane.pojo.entity.UrlEntity"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sso_uri(URI,ENABLE_FLAG,CREATOR_ID,CREATE_TIME)
+        VALUE
+        (
+        #{functionUrl},
+        #{enableFlag},
+        #{creatorId},
+        #{createTime}
+        )
+    </insert>
+
+    <insert id="insertApiUrl" parameterType="cloud.celldata.membrane.pojo.entity.ApiUrlEntity">
+        INSERT INTO sso_api_uri(API_ID,URI_ID,ENABLE_FLAG,CREATOR_ID,CREATE_TIME)
+        VALUE
+        (
+        #{apiId},
+        #{functionUrlId},
+        #{enableFlag},
+        #{creatorId},
+        #{createTime}
+        )
+    </insert>
+    
+    <select id="countModuleNameByClientIdAndApiName" resultType="java.lang.Integer">
+        SELECT count(*) from sso_api WHERE CLIENT_ID = #{clientId} and API_NAME = #{apiName} and ENABLE_FLAG = 1
+        <if test="moduleId != null">
+            AND <![CDATA[ID<>#{moduleId,jdbcType=INTEGER}]]>
+        </if>
+    </select>
+
+    <select id="countFunctionNameByClientIdAndApiName" resultType="java.lang.Integer">
+        SELECT count(*) from sso_api WHERE CLIENT_ID = #{clientId} and API_NAME = #{apiName} and ENABLE_FLAG = 1
+        AND PARENT_ID  = #{moduleId}
+        <if test="functionId != null">
+            AND <![CDATA[ID<>#{functionId,jdbcType=INTEGER}]]>
+        </if>
+    </select>
+
+    <resultMap id="moduleListMap" type="cloud.celldata.membrane.pojo.vo.ModuleBean">
+        <id column="moduleId" jdbcType="INTEGER" property="moduleId"/>
+        <result column="moduleClientId" jdbcType="INTEGER" property="clientId"/>
+        <result column="moduleName" jdbcType="VARCHAR" property="moduleName"/>
+        <collection property="functionList" ofType="cloud.celldata.membrane.pojo.vo.FunctionBean">
+            <id column="functionId" jdbcType="INTEGER" property="functionId"/>
+            <result column="functionClientIdId" jdbcType="INTEGER" property="clientId"/>
+            <result column="functionName" jdbcType="VARCHAR" property="functionName"/>
+            <result column="TYPE" jdbcType="INTEGER" property="apiType"/>
+            <collection property="apiUrlList" ofType="java.lang.String">
+                <constructor>
+                    <arg column="apiUrlList"/>
+                </constructor>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <!--根据平台id查询功能列表以及对应URI-->
+    <select id="selectModuleAndFunctionByClientID" parameterType="INTEGER" resultMap="moduleListMap">
+        SELECT
+            api1.ID AS moduleId,
+            api1.API_NAME AS moduleName,
+            api1.CLIENT_ID AS moduleClientId,
+            api2.ID AS functionId,
+            api2.CLIENT_ID AS functionClientIdId,
+            api2.API_NAME AS functionName,
+            api2.TYPE,
+            k.URI AS apiUrlList
+        FROM
+            sso_api AS api1
+        LEFT JOIN sso_api AS api2 ON api1.ID = api2.PARENT_ID
+        AND api2.ENABLE_FLAG = 1
+        LEFT JOIN sso_api_uri j ON api2.ID = j.API_ID
+        AND j.ENABLE_FLAG = 1
+        LEFT JOIN sso_uri k ON j.URI_ID = k.ID
+        AND k.ENABLE_FLAG = 1
+        WHERE
+            api1.CLIENT_ID = #{clientID}
+        <if test="moduleId != null">
+            AND api1.ID=#{moduleId}
+        </if>
+        AND api1.PARENT_ID = 0
+        AND api1.ENABLE_FLAG = 1
+        ORDER BY
+            CONVERT (api1.API_NAME USING gbk),
+            CONVERT (api2.API_NAME USING gbk)
+    </select>
+
+
+    <!--删除功能-->
+    <update id="removeFunctionApi" parameterType="java.lang.Integer">
+        UPDATE sso_api set ENABLE_FLAG = 0 ,UPDATE_TIME = now(),UPDATER_ID= #{userId} WHERE ID = #{functionId}
+    </update>
+
+    <!--删除功能对应URL中间表-->
+    <update id="removeFunctionApiURI" parameterType="java.lang.Integer">
+        UPDATE sso_api_uri set ENABLE_FLAG = 0 ,UPDATE_TIME = now(),UPDATER_ID= #{userId} WHERE API_ID = #{functionId}
+    </update>
+
+    <!--删除功能对应URI-->
+    <update id="removeFunctionURI" parameterType="java.lang.Integer">
+        UPDATE sso_uri i
+        LEFT JOIN sso_api_uri j ON i.ID = j.URI_ID
+        AND j.ENABLE_FLAG = 1
+        SET i.ENABLE_FLAG = 0,i.UPDATE_TIME = now(),i.UPDATER_ID= #{userId}
+        WHERE
+	    j.API_ID = #{functionId}
+    </update>
+
+    <!--查询模块下有多少功能-->
+    <select id="selectFunctionCountByModuleId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT count(*) from sso_api where PARENT_ID = #{moduleId} AND ENABLE_FLAG =1
+    </select>
+
+    <!--查询应用下有多少个模块-->
+    <select id="selectModuleByClientid" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+            select count(*) from sso_api WHERE CLIENT_ID = #{clientId} AND ENABLE_FLAG =1 and PARENT_ID = 0
+    </select>
+    <!--删除方法-->
+    <update id="removeModuleApi" parameterType="java.lang.Integer">
+         UPDATE sso_api set ENABLE_FLAG = 0 ,UPDATE_TIME = now(),UPDATER_ID= #{userId} WHERE ID = #{moduleId}
+    </update>
+
+    <!--模块编辑-->
+    <update id="updateModule">
+        UPDATE sso_api set API_NAME = #{moduleBean.moduleName},UPDATE_TIME = now(),UPDATER_ID= #{userId} WHERE ID = #{moduleBean.moduleId}
+    </update>
+
+    <!--功能编辑编辑-->
+    <update id="updateFunction">
+        UPDATE sso_api set API_NAME = #{functionBean.functionName},TYPE=#{functionBean.apiType},UPDATE_TIME = now(),UPDATER_ID= #{userId} WHERE ID = #{functionBean.functionId}
+    </update>
+
+    <update id="removeApp">
+        UPDATE sso_client set ENABLE_FLAG = 0 ,UPDATE_TIME = now(),UPDATER_ID= #{userId} WHERE ID = #{clientId}
+    </update>
+
+    <update id="certificationApp">
+        UPDATE sso_client set VERIFICATION =#{certificationBean.verification.authenticationCode},
+        AUTHENTICATION = #{certificationBean.authentication.authenticationCode},
+        TOKEN_CHECK_TYPE= #{certificationBean.tokenCheckType.typeCode},
+        APP_SECRET_VALIDITY  =#{certificationBean.accessValidity},
+        EXTERNAL_AUTH_ID=#{certificationBean.externalAuthId},
+        UPDATE_TIME = now(),
+        UPDATER_ID= #{userId}
+        where  ID = #{certificationBean.clientId}
+    </update>
+
+    <select id="selectAllUriListForAppId" resultType="java.lang.String">
+        SELECT
+            k.URI AS apiUrlList
+        FROM
+            sso_api AS api1
+        Right JOIN sso_api AS api2 ON api1.ID = api2.PARENT_ID
+        AND api2.ENABLE_FLAG = 1
+        Right JOIN sso_api_uri j ON api2.ID = j.API_ID
+        AND j.ENABLE_FLAG = 1
+        Right JOIN sso_uri k ON j.URI_ID = k.ID
+        AND k.ENABLE_FLAG = 1
+        WHERE
+            api1.CLIENT_ID = #{appId}
+        AND api1.PARENT_ID = 0
+        AND api1.ENABLE_FLAG = 1
+    </select>
+
+    <select id="selectApiTypeByAppIdAndURI" resultType="java.lang.Integer">
+        SELECT
+            DISTINCT
+            k.TYPE
+        FROM
+            sso_uri i
+        LEFT JOIN sso_api_uri j ON i.ID = j.URI_ID
+        AND j.ENABLE_FLAG = 1
+        LEFT JOIN sso_api k on  j.API_ID = k.ID
+        AND k.ENABLE_FLAG = 1
+        where i.ENABLE_FLAG = 1
+        AND i.URI = #{uri}
+        AND k.CLIENT_ID = #{appId}
+    </select>
+
+
+</mapper>

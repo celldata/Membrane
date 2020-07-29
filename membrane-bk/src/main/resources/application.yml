@@ -1,0 +1,63 @@
+spring:
+  profiles:
+    active: active
+  messages:
+    basename: i18n/message
+    encoding: UTF-8
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+EMAIL_TEMPLATE: 权限管理平台找回密码功能验证码，30分钟内有效
+
+membrane:
+  secret: 444444
+  issuer: membraneIssueCenter
+  #权限平台Token有效时间 单位秒
+  expire_time: 1800
+  #tokenKey 有效时间单位 秒
+  tokenkey_validity: 30
+  mail:
+    template: 权限管理平台找回密码功能验证码，30分钟内有效
+  filter:
+    anonymousURIs:
+      - "/api/token/login"
+      - "/api/user/exists"
+      - "/api/user/send"
+      - "/api/user/forget"
+      - "/api/user/fetch"
+      - "/api/app/fetch"
+      - "/api/role/list"
+      - "/api/token/exchange"
+      - "/api/token/getAuthorityData"
+      - "/api/token/getTokenKey"
+#      swggger相关放行
+    swaggerURIs:
+      - "/webjars"
+      - "/swagger-resources"
+      - "/v2"
+      - "/swagger-ui"
+
+
+
+
+# 短信服务参数
+ali_msg:
+  domain: dysmsapi.aliyuncs.com
+  region_id: default
+# 此处填写阿里云短信签名
+  sign_name: Membrane管理平台
+# 此处填写对应短信模板ID 模板内容【 验证码：${code}（30分钟内有效），该验证码用于找回密码功能，请勿泄露该验证码。】
+  new_user_template_code: **********
+  access_key:
+    id: ***************
+    secret: ******************
+
+# oss存储桶相关参数
+oss:
+# 此处填写OSS key
+ AccessKeyID: *************************
+ SECRET: **********************
+# OSS 链接地址
+ endPoint: ****
+# 存储桶名称
+ bucketName: *****

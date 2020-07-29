@@ -1,0 +1,33 @@
+server:
+  port: 8085
+spring:
+  datasource:
+    driverClassName : com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/membrane?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+    username: **************
+    password: **************
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    jedis:
+      pool:
+        max-active: 20
+        min-idle: 20
+        max-wait: 1ms
+        max-idle: 8
+    timeout: 100000
+    database: 6
+# 放行前端 options 请求
+#  mvc:
+#    dispatch-options-request: true
+#  邮箱配置
+  mail:
+    host: *********
+    port: 25
+    username: *************
+    password: *************
+    default-encoding: utf-8
+
+redis_message_topic: __keyevent@0__:expired
+#sso登陆页面地址
+sso_request_url: ***********

@@ -1,0 +1,141 @@
+html,
+body {
+  height: 100%;
+}
+
+*{
+  font-family: "Microsoft YaHei","Open Sans","Helvetica Neue","Helvetica,Arial","Hiragino Sans GB","STXihei,STHeiti","SimHei",sans-serif;
+}
+
+*{
+	box-sizing: border-box;
+}
+img {
+	border: 0;
+	vertical-align: middle;
+}
+
+ul, ol {
+	list-style-type: none;
+}
+input:focus{
+outline: none;
+}
+a{
+	text-decoration: none;
+}
+body,ul,ol,p,h1,h2,h3,h4,h5,h6{
+	padding:0;
+	margin:0;
+}
+button{
+	cursor: pointer;
+}
+
+.overl{
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;/*加宽度width属来兼容部分浏览*/
+}
+
+.fl{
+	float:left;
+}
+
+.fr{
+	float:right;
+}
+
+.overh{
+	overflow:hidden;
+}
+
+.clearb{
+	clear:both;
+}
+
+
+.el-menu{
+	border:none !important;
+}
+
+
+.el-table--group::after, .el-table--border::after, .el-table::before {
+    background-color: transparent !important;
+}
+
+.el-message-box__message p{
+	text-align: center !important;
+}
+
+/* 分页 */
+// 分页的样式--
+.el-pagination {
+	padding: 2px 0;
+}
+.paging .el-pagination.is-background .el-pager li {
+	border: 1px solid #323232;
+	background: #fff;
+	color: #323232;
+	&:hover {
+		color: #323232;
+	}
+}
+
+.paging .el-pagination.is-background .el-pager li:not(.disabled).active {
+	background-color: #3D90F8 !important;
+	border: 1px solid #3D90F8 !important;
+	color: #fff;
+}
+.paging .el-pagination.is-background .btn-next,
+.paging .el-pagination.is-background .btn-prev {
+	border: 1px solid #323232;
+	color: #323232;
+	padding: 0 10px;
+	background: #fff;
+}
+.paging .el-pagination.is-background .btn-prev:disabled,
+.paging .el-pagination.is-background .btn-next:disabled {
+	color: #adadad;
+	border: 1px solid #adadad;
+}
+.paging .el-pagination {
+	.el-pagination__total,
+	.el-pagination__jump {
+		color: #323232;
+	}
+	.el-pagination__sizes {
+		.el-input {
+			input {
+				color: #323232;
+				background: #fff;
+				border: 1px solid #323232;
+				&:hover {
+					border: 1px solid #323232;
+				}
+			}
+		}
+		.el-select .el-input.is-focus .el-input__inner {
+			border: 1px solid #323232;
+		}
+	}
+	.el-pagination__jump {
+		.el-pagination__editor {
+			input {
+				color: #323232;
+				background: #fff;
+				border: 1px solid #323232;
+			}
+		}
+	}
+}
+.breadcrumb-container .el-breadcrumb__item:last-child .el-breadcrumb__inner {
+  color: #adadad;
+  font-size: 10px !important;
+}
+.breadcrumb-container
+.el-breadcrumb__item:last-child
+.el-breadcrumb__inner:hover {
+  color: #adadad;
+  font-size: 10px !important;
+}

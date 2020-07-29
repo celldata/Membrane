@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.ClientMapper">
+        <resultMap id="clientMap" type="cloud.celldata.membrane.pojo.entity.ClientEntity">
+            <id column="id" property="id" jdbcType="BIGINT" />
+            <result column="app_name" property="appName" jdbcType="VARCHAR"/>
+            <result column="app_id" property="appId" jdbcType="VARCHAR" />
+            <result column="app_key" property="appKey" jdbcType="VARCHAR" />
+            <result column="APP_SECRET_VALIDITY" property="appSecretValidity" jdbcType="INTEGER"/>
+            <result column="APP_SECRET" property="appSecret" jdbcType="VARCHAR"/>
+            <result column="AUTHENTICATION" property="authentication" jdbcType="INTEGER"/>
+            <result column="VERIFICATION" property="verification" jdbcType="INTEGER"/>
+            <result column="EXTERNAL_AUTH_ID" property="externalAuthId" jdbcType="INTEGER"/>
+        </resultMap>
+
+
+
+
+         <select id="getClient" parameterType="cloud.celldata.membrane.pojo.entity.ClientEntity" resultMap="clientMap">
+               select
+                     id,
+                     app_key,
+                     app_id,
+                     app_name,
+                     APP_SECRET_VALIDITY,
+                     APP_SECRET,
+                     AUTHENTICATION,
+                     VERIFICATION,
+                     EXTERNAL_AUTH_ID
+                from sso_client
+               <where>
+                   <if test="id!=null and ''!=id">
+                      and id=#{id}
+                   </if>
+                   <if test="appId!=null and ''!=appId">
+                     and   app_id=#{appId}
+                   </if>
+                   <if test="appKey!=null and ''!=appKey">
+                       and app_key=#{appKey}
+                   </if>
+                   <if test="appName!=null and ''!=appName">
+                       and app_name=#{appName}
+                   </if>
+               </where>
+               AND ENABLE_FLAG=1
+         </select>
+
+
+    <select id="findsum" resultType="int">
+         select count(*) from t_user
+    </select>
+
+    <select id="getAppByName" resultMap="clientMap">
+        select * from sso_client where app_name=#{0}
+        AND ENABLE_FLAG=1
+    </select>
+
+
+    <insert id="registry" >
+        insert into SSO_CLIENT  (APP_NAME,APP_ID,APP_KEY,ENABLE_FLAG) VALUE (#{name},#{appId},#{appKey},1)
+    </insert>
+
+    <resultMap id="clientAllMap" type="cloud.celldata.membrane.pojo.vo.ClientListBean">
+        <id column="ID" property="clientId" jdbcType="BIGINT" />
+        <result column="APP_ID" property="appId" jdbcType="VARCHAR"/>
+        <result column="APP_NAME" property="clientName" jdbcType="VARCHAR"/>
+        <result column="IMG_URL" property="url" jdbcType="VARCHAR"/>
+        <result column="APP_DESC" property="appDesc" jdbcType="VARCHAR"/>
+        <result column="VERIFICATION" property="verification" jdbcType="BIGINT"/>
+        <result column="AUTHENTICATION" property="authentication" jdbcType="BIGINT"/>
+        <result column="TOKEN_CHECK_TYPE" property="tokenCheckType" jdbcType="BIGINT"/>
+        <result column="APP_SECRET_VALIDITY" property="accessValidity" jdbcType="BIGINT"/>
+        <result column="APP_SECRET" property="secret" jdbcType="VARCHAR"/>
+        <result column="CREATOR_ID" property="creatorId" jdbcType="BIGINT"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATER_ID" property="updaterId" jdbcType="BIGINT"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="EXTERNAL_AUTH_ID" property="externalAuthId" jdbcType="BIGINT"/>
+        <result column="USER_NAME" property="creatorUserName" jdbcType="VARCHAR"/>
+        <collection property="moduleList" ofType="cloud.celldata.membrane.pojo.vo.ModuleBean">
+            <id column="moduleId" jdbcType="INTEGER" property="moduleId"/>
+            <result column="moduleClientId" jdbcType="INTEGER" property="clientId"/>
+            <result column="moduleName" jdbcType="VARCHAR" property="moduleName"/>
+            <collection property="functionList" ofType="cloud.celldata.membrane.pojo.vo.FunctionBean">
+                <id column="functionId" jdbcType="INTEGER" property="functionId"/>
+                <result column="functionClientIdId" jdbcType="INTEGER" property="clientId"/>
+                <result column="functionName" jdbcType="VARCHAR" property="functionName"/>
+                <result column="TYPE" jdbcType="INTEGER" property="apiType"/>
+                <collection property="apiUrlList" ofType="java.lang.String">
+                    <constructor>
+                        <arg column="apiUrlList"/>
+                    </constructor>
+                </collection>
+            </collection>
+        </collection>
+        <collection property="roleList" select="selectRoleByClientId" column="ID"
+                    ofType="cloud.celldata.membrane.pojo.vo.RoleIdAndNameBean">
+            <id column="roleId" property="roleId"/>
+            <result column="roleName" property="roleName"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectRoleByClientId" parameterType="java.lang.Integer"
+            resultType="cloud.celldata.membrane.pojo.vo.RoleIdAndNameBean">
+        SELECT
+            i.CLIENT_ID,i.ID as roleId ,i.ROLE_NAME as roleName
+        FROM
+            sso_role i
+        LEFT JOIN sso_client j ON i.CLIENT_ID = j.ID
+        AND j.ENABLE_FLAG = 1
+        where
+        i.ENABLE_FLAG=1
+        AND
+        i.CLIENT_ID=#{appId}
+    </select>
+
+    <select id="selectAllClient" resultMap="clientAllMap">
+        SELECT
+        i.*, j.*
+        FROM
+        (
+        SELECT
+        sso_client.ID,
+        APP_ID,
+        APP_NAME,
+        IMG_URL,
+        APP_DESC,
+        sso_client.VERIFICATION,
+        sso_client.AUTHENTICATION,
+        TOKEN_CHECK_TYPE,
+        APP_SECRET_VALIDITY,
+        APP_SECRET,
+        sso_client.EXTERNAL_AUTH_ID,
+        sso_client.CREATOR_ID,
+        sso_client.CREATE_TIME,
+        sso_client.UPDATER_ID,
+        sso_client.UPDATE_TIME,
+        sso_user.USER_NAME AS USER_NAME
+        FROM
+        sso_client
+        LEFT JOIN sso_user ON sso_client.CREATOR_ID = sso_user.ID
+        AND sso_user.ENABLE_FLAG = 1
+        WHERE
+        sso_client.ENABLE_FLAG = 1
+        <if test="clientId != null">
+            and sso_client.ID = #{clientId}
+        </if>
+        <if test="authentication!= null">
+            and sso_client.AUTHENTICATION = #{authentication}
+        </if>
+        <if test="verification!= null">
+            and sso_client.VERIFICATION = #{verification}
+        </if>
+        <if test="tokenCheckType!= null">
+            and sso_client.TOKEN_CHECK_TYPE = #{tokenCheckType}
+        </if>
+        ORDER BY
+        CONVERT (APP_NAME USING gbk)
+        ) AS i
+        LEFT JOIN (
+        SELECT
+        api1.CLIENT_ID,
+        api1.ID AS moduleId,
+        api1.API_NAME AS moduleName,
+        api1.CLIENT_ID AS moduleClientId,
+        api2.ID AS functionId,
+        api2.CLIENT_ID AS functionClientIdId,
+        api2.API_NAME AS functionName,
+        api2.TYPE,
+        k.URI AS apiUrlList
+        FROM
+        sso_api AS api1
+        LEFT JOIN sso_api AS api2 ON api1.ID = api2.PARENT_ID
+        AND api2.ENABLE_FLAG = 1
+        LEFT JOIN sso_api_uri j ON api2.ID = j.API_ID
+        AND j.ENABLE_FLAG = 1
+        LEFT JOIN sso_uri k ON j.URI_ID = k.ID
+        AND k.ENABLE_FLAG = 1
+        WHERE
+        api1.PARENT_ID = 0
+        AND api1.ENABLE_FLAG = 1
+        ORDER BY
+        CONVERT (api1.API_NAME USING gbk),
+        CONVERT (api2.API_NAME USING gbk)
+        ) AS j ON i.ID = j.CLIENT_ID
+    </select>
+
+    <select id="countClientByclientName" resultType="java.lang.Integer">
+        select count(1) from sso_client where APP_NAME = #{clientName,jdbcType=VARCHAR} and ENABLE_FLAG = 1
+        <if test="clientId != null">
+            AND <![CDATA[ID<>#{clientId,jdbcType=INTEGER}]]>
+        </if>
+
+    </select>
+
+    <select id="countClientByAppId" resultType="java.lang.Integer">
+        select count(1) from sso_client where APP_ID = #{appId,jdbcType=VARCHAR} and ENABLE_FLAG = 1
+        <if test="clientId != null">
+            AND <![CDATA[ID<>#{clientId,jdbcType=INTEGER}]]>
+        </if>
+    </select>
+
+    <insert id="addClient" parameterType="cloud.celldata.membrane.pojo.vo.CertificationBean">
+        insert into sso_client(APP_ID,APP_NAME,IMG_URL,APP_DESC,VERIFICATION,AUTHENTICATION,TOKEN_CHECK_TYPE,APP_SECRET_VALIDITY,APP_SECRET,ENABLE_FLAG,CREATOR_ID,CREATE_TIME)
+        value(
+        #{client.appId,jdbcType=VARCHAR},
+        #{client.clientName,jdbcType=VARCHAR},
+        #{client.imgUrl,jdbcType=VARCHAR},
+        #{client.appDesc,jdbcType=VARCHAR},
+        #{client.verification.authenticationCode,jdbcType=INTEGER},
+        #{client.authentication.authenticationCode,jdbcType=INTEGER},
+        #{client.tokenCheckType.typeCode,jdbcType=INTEGER},
+        #{client.accessValidity,jdbcType=INTEGER},
+        #{client.secret,jdbcType=VARCHAR},
+        1,
+        #{userId,jdbcType=INTEGER},
+        now()
+        )
+    </insert>
+
+    <update id="updateApp" parameterType="cloud.celldata.membrane.pojo.vo.ClientBean">
+        UPDATE sso_client
+        <set>
+            <if test="null != client.clientName and ''!= client.clientName" >
+                APP_NAME = #{client.clientName,jdbcType=VARCHAR},
+            </if>
+            <if test="null != client.appId and ''!= client.appId ">
+                APP_ID = #{client.appId,jdbcType=VARCHAR},
+            </if>
+            <if test="null != client.imgUrl and ''!= client.imgUrl">
+                IMG_URL = #{client.imgUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="null != client.secret and ''!= client.secret">
+                APP_SECRET = #{client.secret,jdbcType=VARCHAR},
+            </if>
+            <if test = "null != client.appDesc ">
+                APP_DESC = #{client.appDesc,jdbcType=VARCHAR},
+            </if>
+            UPDATE_TIME = now(),
+            UPDATER_ID = #{userId,jdbcType=INTEGER}
+        </set>
+        <where>
+            ID = #{client.clientId,jdbcType=INTEGER}
+        </where>
+    </update>
+
+
+</mapper>

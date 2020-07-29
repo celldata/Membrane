@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.DataAuthorityMapper">
+
+    <!--根据角色id查询的功能权限信息-->
+    <resultMap id="dataApiMap" type="cloud.celldata.membrane.pojo.vo.role.DataInfoBean">
+        <id column="ID" jdbcType="INTEGER" property="id" />
+        <result column="NAME" jdbcType="VARCHAR" property="dataAuthorityName" />
+        <result column="CLIENT_ID" jdbcType="INTEGER" property="clientId" />
+        <result column="IS_ALL" jdbcType="INTEGER" property="isAll" />
+    </resultMap>
+    <!--根据角色id查询数据权限-->
+    <select id="selctDataAuthorityByRoleId" parameterType="INTEGER" resultMap="dataApiMap">
+            SELECT
+               api.ID,
+               api.CLIENT_ID,
+               api.`NAME`,
+               api.IS_ALL
+            FROM
+                sso_role as role
+             join sso_role_data as rela on rela.ROLE_ID=role.ID
+             join sso_data as api on api.ID=rela.DATA_ID
+            where role.ID=#{roleId}
+    </select>
+
+
+    <resultMap id="dataAuthorityMap" type="cloud.celldata.membrane.pojo.vo.role.DataAuthorityBean">
+        <id column="ID" jdbcType="INTEGER" property="key" />
+        <result column="NAME" jdbcType="VARCHAR" property="label" />
+    </resultMap>
+    <!--根据平台id查询数据权限信息(排除全部权限)-->
+    <select id="selectDataAuthorityByClientId" resultMap="dataAuthorityMap" parameterType="INTEGER">
+           SELECT
+            ID,
+            NAME
+        FROM
+            sso_data
+            where ENABLE_FLAG=1
+            and CLIENT_ID=#{clientId}
+            and (IS_ALL !=1 or  IS_ALL is null)
+            order by CONVERT(NAME USING gbk)
+     </select>
+</mapper>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.DataScreeMapper">
+
+    <insert id="addScree" useGeneratedKeys="true" keyProperty="dataScreeEntity.id">
+        insert into sso_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="dataScreeEntity.clientId != null">
+                client_id,
+            </if>
+            <if test="dataScreeEntity.scrName != null">
+                scr_name,
+            </if>
+            <if test="dataScreeEntity.scrRule != null">
+                scr_rule,
+            </if>
+            <if test="dataScreeEntity.scrDesc != null">
+                scr_desc,
+            </if>
+            <if test="dataScreeEntity.scrJson != null">
+                scr_json,
+            </if>
+            <if test="userId != null">
+                creator_id,
+            </if>
+            create_time, enable_flag
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="dataScreeEntity.clientId != null">
+                #{dataScreeEntity.clientId, jdbcType = INTEGER},
+            </if>
+            <if test="dataScreeEntity.scrName != null">
+                #{dataScreeEntity.scrName, jdbcType = VARCHAR},
+            </if>
+            <if test="dataScreeEntity.scrRule != null">
+                #{dataScreeEntity.scrRule, jdbcType = VARCHAR},
+            </if>
+            <if test="dataScreeEntity.scrDesc != null">
+                #{dataScreeEntity.scrDesc, jdbcType = VARCHAR},
+            </if>
+            <if test="dataScreeEntity.scrJson != null">
+                #{dataScreeEntity.scrJson, jdbcType = VARCHAR},
+            </if>
+            <if test="userId != null">
+                #{userId, jdbcType = INTEGER},
+            </if>
+            now(), 1
+        </trim>
+    </insert>
+
+    <update id="updateScree">
+        update sso_data set
+        <if test="dataScreeEntity.clientId != null">
+            client_id = #{dataScreeEntity.clientId, jdbcType = INTEGER},
+        </if>
+        <if test="dataScreeEntity.scrName != null">
+            scr_name = #{dataScreeEntity.scrName, jdbcType = VARCHAR},
+        </if>
+        <if test="dataScreeEntity.scrRule != null">
+            scr_rule = #{dataScreeEntity.scrRule, jdbcType = VARCHAR},
+        </if>
+        <if test="dataScreeEntity.scrDesc != null">
+            scr_desc = #{dataScreeEntity.scrDesc, jdbcType = VARCHAR},
+        </if>
+        <if test="dataScreeEntity.scrJson != null">
+            scr_json = #{dataScreeEntity.scrJson, jdbcType = VARCHAR},
+        </if>
+        <if test="userId != null">
+            updater_id = #{userId, jdbcType = INTEGER},
+        </if>
+        update_time = now()
+        where id = #{dataScreeEntity.id, jdbcType = INTEGER}
+    </update>
+
+    <select id="selectScreesByClientId" parameterType="java.lang.Integer" resultType="cloud.celldata.membrane.pojo.entity.DataScreeEntity">
+        select s.id id, s.client_id clientId, s.scr_name scrName, s.scr_rule scrRule, s.scr_desc scrDesc,
+        s.scr_json scrJson, s.create_time createTime, u.USER_NAME userName
+        from sso_data s
+        left join sso_user u on s.creator_id = u.ID and u.ENABLE_FLAG = 1
+        where s.client_id = #{clientId, jdbcType = INTEGER} and s.enable_flag = 1
+    </select>
+
+    <select id="selectScreesByRoleId" parameterType="java.lang.Integer" resultType="cloud.celldata.membrane.pojo.entity.DataScreeEntity">
+        select s.id id, s.client_id clientId, s.scr_name scrName, s.scr_rule scrRule, s.scr_desc scrDesc,
+        s.scr_json scrJson, s.create_time createTime, u.USER_NAME userName
+        from sso_data s
+		LEFT JOIN sso_role_data r on r.DATA_ID = s.id and r.ENABLE_FLAG =1
+        left join sso_user u on s.creator_id = u.ID and u.ENABLE_FLAG = 1
+        where r.ROLE_ID = #{roleId, jdbcType = INTEGER} and s.enable_flag = 1
+    </select>
+
+    <select id="selectScreesByRoleIdList" parameterType="java.lang.Integer" resultType="cloud.celldata.membrane.pojo.entity.DataScreeEntity">
+        select s.id id, s.client_id clientId, s.scr_name scrName, s.scr_rule scrRule, s.scr_desc scrDesc,
+        s.scr_json scrJson, s.create_time createTime, u.USER_NAME userName
+        from sso_data s
+        LEFT JOIN sso_role_data r on r.DATA_ID = s.id and r.ENABLE_FLAG =1
+        left join sso_user u on s.creator_id = u.ID and u.ENABLE_FLAG = 1
+        where
+        r.ROLE_ID IN
+        <foreach collection="idList" item="id" open="(" close=")" separator=",">
+            #{id, jdbcType = INTEGER}
+        </foreach>
+        and s.enable_flag = 1
+    </select>
+
+
+    <update id="removeScree">
+        update sso_data
+        set enable_flag = 0, updater_id = #{userId, jdbcType = INTEGER}, update_time = now()
+        where enable_flag = 1 and id in
+        <foreach collection="idList" item="id" open="(" close=")" separator=",">
+            #{id, jdbcType = INTEGER}
+        </foreach>
+    </update>
+
+    <select id="countScree" resultType="java.lang.Integer">
+        select count(1)
+        from sso_data
+        where enable_flag = 1
+        <if test="id != null">
+            and id <![CDATA[<>]]> #{id, jdbcType = INTEGER}
+        </if>
+        <if test="scrName != null">
+            and scr_name = #{scrName, jdbcType = VARCHAR}
+        </if>
+    </select>
+
+</mapper>

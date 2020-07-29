@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.FunctionAuthorityMapper">
+
+    <!--根据角色id查询的功能权限信息-->
+    <resultMap id="roleApiMap" type="cloud.celldata.membrane.pojo.vo.role.ApiBean">
+        <id column="apiId" jdbcType="INTEGER" property="apiId" />
+        <result column="API_DESC" jdbcType="VARCHAR" property="apiDesc" />
+        <result column="API_NUM" jdbcType="INTEGER" property="apiNum" />
+        <result column="PARENT_ID" jdbcType="INTEGER" property="parentId" />
+    </resultMap>
+
+
+    <select id="selectFunctionAuthorityByRoleId" parameterType="INTEGER" resultMap="roleApiMap">
+        SELECT
+          api.ID as apiId,
+          api.API_DESC,
+          api.API_NUM,
+          api.PARENT_ID
+        FROM
+            sso_role as role
+        join sso_client as client on client.id=role.client_id and client.ENABLE_FLAG=1
+         join sso_role_api as ra on ra.ROLE_ID=role.ID and ra.ENABLE_FLAG=1
+         join sso_api as api on api.ID=ra.API_ID
+        where role.ENABLE_FLAG=1
+        and role.ID=#{roleId}
+    </select>
+
+
+
+
+
+
+    <resultMap id="labelMap" type="cloud.celldata.membrane.pojo.vo.role.LabelBean">
+        <id column="id1" jdbcType="INTEGER" property="id" />
+        <result column="name1" jdbcType="VARCHAR" property="label" />
+        <result column="apiIsData1" jdbcType="INTEGER" property="haveData" />
+        <collection property="children" ofType="cloud.celldata.membrane.pojo.vo.role.LabelBean">
+            <id column="id2" jdbcType="INTEGER" property="id" />
+            <result column="name2" jdbcType="VARCHAR" property="label" />
+            <result column="apiIsData2" jdbcType="INTEGER" property="haveData" />
+            <collection property="children" ofType="cloud.celldata.membrane.pojo.vo.role.LabelBean">
+                <id column="id3" jdbcType="INTEGER" property="id" />
+                <result column="name3" jdbcType="VARCHAR" property="label" />
+                <result column="apiIsData3" jdbcType="INTEGER" property="haveData" />
+            </collection>
+        </collection>
+    </resultMap>
+
+    <!--根据平台id查询功能列表-->
+    <select id="selectFunctionAuthorityByClientId" parameterType="INTEGER" resultMap="labelMap">
+        SELECT
+          api1.ID AS id4,
+	      api1.API_DESC AS name4,
+          api2.ID as id1,
+          api2.API_DESC as name1,
+          api2.API_IS_DATA as apiIsData1,
+          api3.ID as id2,
+          api3.API_DESC as name2,
+          api3.API_IS_DATA as apiIsData2,
+          api4.ID as id3,
+          api4.API_DESC as name3,
+          api4.API_IS_DATA as apiIsData3
+        FROM
+            sso_api as api1
+        left join sso_api as api2 on api1.ID=api2.PARENT_ID and api1.ENABLE_FLAG=1 and api2.ENABLE_FLAG=1
+        left join sso_api as api3 on api2.ID=api3.PARENT_ID and api3.ENABLE_FLAG=1
+        left join sso_api as api4 on api3.ID=api4.PARENT_ID and api4.ENABLE_FLAG=1
+        where api1.CLIENT_ID=#{clientId}
+        and api1.PARENT_ID=0
+        order by CONVERT(api1.API_DESC USING gbk),
+        CONVERT(api2.API_DESC USING gbk),
+        CONVERT(api3.API_DESC USING gbk),
+        CONVERT(api4.API_DESC USING gbk)
+
+
+
+    </select>
+
+
+    <select id="selectThreeAuthorityByIds"  resultMap="labelMap">
+        SELECT
+        api1.ID AS id3,
+        api1.API_DESC AS name3,
+        api2.ID as id2,
+        api2.API_DESC as name2,
+        api3.ID as id1,
+        api3.API_DESC as name1
+        FROM
+            sso_api as api1
+        join sso_api as api2 on api1.PARENT_ID=api2.ID
+        join sso_api as api3 on api2.PARENT_ID=api3.ID
+        where api1.ID in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectTwoAuthorityByIds"  resultMap="labelMap">
+        SELECT
+        api1.ID AS id2,
+        api1.API_DESC AS name2,
+        api2.ID as id1,
+        api2.API_DESC as name1
+        FROM
+        sso_api as api1
+        join sso_api as api2 on api1.PARENT_ID=api2.ID
+        where api1.ID in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

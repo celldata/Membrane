@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.DataScreeAttributeRelationMapper">
+
+    <insert id="batchAddRelations">
+        insert into sso_scr_att_relation (
+            scr_id,
+            con_id,
+            att_id,
+            creator_id,
+            create_time,
+            enable_flag
+        )
+        values
+        <foreach collection="relations" item="relation" separator=",">
+        (
+            #{relation.screeId, jdbcType = INTEGER},
+            #{relation.configId, jdbcType = INTEGER},
+            #{relation.attributeId, jdbcType = INTEGER},
+            #{userId, jdbcType = INTEGER},
+            now(),
+            1
+        )
+        </foreach>
+    </insert>
+
+    <update id="batchDeleteRelations">
+        update sso_scr_att_relation
+        set enable_flag = 0, updater_id = #{userId, jdbcType = INTEGER}, update_time = now()
+        where enable_flag = 1 and scr_id in
+        <foreach collection="screeIds" item="screeId" open="(" close=")" separator=",">
+            #{screeId, jdbcType = INTEGER}
+        </foreach>
+    </update>
+
+    <select id="selectByScreeIds" resultType="cloud.celldata.membrane.pojo.entity.DataScreeAttributeRelationEntity">
+        select r.id id, r.scr_id screeId, r.con_id configId, r.att_id attributeId,
+        c.config_name configName, a.attribute_name attributeName
+        from sso_scr_att_relation r
+        left join sso_data_config c on r.con_id = c.id
+        left join sso_data_attribute a on r.att_id = a.id
+        where c.enable_flag = 1 and a.enable_flag = 1 and r.enable_flag = 1 and r.scr_id in
+        <foreach collection="screeIds" item="screeId" open="(" close=")" separator=",">
+            #{screeId, jdbcType = INTEGER}
+        </foreach>
+    </select>
+
+    <select id="countByAttIds" resultType="java.lang.Integer">
+        select count(1)
+        from sso_scr_att_relation
+        where enable_flag = 1 and att_id in
+        <foreach collection="attIds" item="attId" open="(" close=")" separator=",">
+            #{attId, jdbcType = INTEGER}
+        </foreach>
+    </select>
+
+</mapper>

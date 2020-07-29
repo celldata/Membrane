@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.DataApiMapper">
+    <resultMap id="resultMap" type="cloud.celldata.membrane.pojo.entity.DataApiEntity">
+        <id column="ID" property="id" jdbcType="INTEGER" />
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="DESC" property="desc" jdbcType="VARCHAR"/>
+        <result column="CLIENT_ID" property="clientId" jdbcType="INTEGER"/>
+        <result column="IS_ALL" property="isAll" jdbcType="INTEGER"/>
+        <result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR"/>
+        <result column="CREATOR_ID" property="creatorId" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATER_ID" property="updateId" jdbcType="VARCHAR"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <select id="getDataByRoleId" resultMap="resultMap" parameterType="cloud.celldata.membrane.pojo.bo.PrivilegeRoleDTO">
+
+        SELECT p.* FROM `sso_role_data` rp,sso_data p
+        <where>
+            rp.data_id = p.id
+            <if test="roleId!=null">
+                and rp.role_id = #{roleId}
+            </if>
+            <if test="clientId!=null">
+                and p.client_id=#{clientId}
+            </if>
+        </where>
+
+        and rp.ENABLE_FLAG =1
+    </select>
+
+
+    <insert id="addRoleData" parameterType="cloud.celldata.membrane.pojo.entity.RoleDataEntity">
+        insert  into sso_role_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id!=null">
+                ID,
+            </if>
+            <if test="roleId!=null">
+                ROLE_ID,
+            </if>
+            <if test="dataId!=null">
+                DATA_ID,
+            </if>
+            <if test="enableFlag!=null">
+                ENABLE_FLAG,
+            </if>
+            <if test="creatorId!=null">
+                CREATOR_ID,
+            </if>
+            <if test="createTime!=null">
+                CREATE_TIME,
+            </if>
+            <if test="updateId!=null">
+                UPDATER_ID,
+            </if>
+            <if test="updateTime!=null">
+                UPDATE_TIME,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id!=null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="roleId!=null">
+                #{roleId,jdbcType=INTEGER},
+            </if>
+            <if test="dataId!=null">
+                #{dataId,jdbcType=INTEGER},
+            </if>
+            <if test="enableFlag!=null">
+                #{enableFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creatorId!=null">
+                #{creatorId,jdbcType=INTEGER},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateId!=null">
+                #{updateId,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+
+        <!-- 指定结果类型resultType，keyProperty是属性，自动返回到属性id中，order是次序，after是指获取id是在于插入后 -->
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+
+    </insert>
+
+
+
+</mapper>

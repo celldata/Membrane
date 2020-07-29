@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.RoleMapper">
+    <resultMap id="resultMap" type="cloud.celldata.membrane.pojo.entity.RoleEntity">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="role_name" property="roleName" jdbcType="VARCHAR"/>
+        <result column="CLIENT_ID" property="clientId" jdbcType="INTEGER"/>
+        <result column="ENABLE_FLAG" property="enableFlag" jdbcType="VARCHAR"/>
+        <result column="CREATOR_ID" property="creatorId" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATER_ID" property="updateId" jdbcType="VARCHAR"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="IS_ALL_API" property="isAllApi" javaType="INTEGER"/>
+        <result column="IS_ALL_DATA" property="isAllData" javaType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="clientMap" type="cloud.celldata.membrane.pojo.entity.ClientEntity">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="app_name" property="appName" jdbcType="VARCHAR"/>
+        <result column="app_id" property="appId" jdbcType="VARCHAR" />
+        <result column="app_key" property="appKey" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--查询角色名是否存在-->
+    <select id="selectRoleName" resultType="java.lang.Integer">
+        select id from sso_role where ENABLE_FLAG = 1 and id != #{roleId} and role_name = #{roleName}
+    </select>
+
+    <!--新增角色-->
+    <insert id="addRole1" parameterType="cloud.celldata.membrane.pojo.entity.Role" useGeneratedKeys="true" keyProperty="id">
+        insert into sso_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                ID,
+            </if>
+            <if test="clientId != null">
+                CLIENT_ID,
+            </if>
+            <if test="roleName != null">
+                ROLE_NAME,
+            </if>
+            <if test="enableFlag != null">
+                ENABLE_FLAG,
+            </if>
+            <if test="creatorId != null">
+                CREATOR_ID,
+            </if>
+            <if test="createTime != null">
+                CREATE_TIME,
+            </if>
+            <if test="updaterId != null">
+                UPDATER_ID,
+            </if>
+            <if test="updateTime != null">
+                UPDATE_TIME,
+            </if>
+            <if test="isAllApi != null">
+                IS_ALL_API,
+            </if>
+            <if test="isAllData != null">
+                IS_ALL_DATA,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="clientId != null">
+                #{clientId,jdbcType=INTEGER},
+            </if>
+            <if test="roleName != null">
+                #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test="enableFlag != null">
+                #{enableFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creatorId != null">
+                #{creatorId,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updaterId != null">
+                #{updaterId,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isAllApi != null">
+                #{isAllApi,jdbcType=INTEGER},
+            </if>
+            <if test="isAllData != null">
+                #{isAllData,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+
+    <!--查询角色所有功能权限对应ID-->
+    <select id="selectAllApiId" resultType="java.lang.Integer">
+        select id from sso_api where ENABLE_FLAG = 1 and client_id = #{clientId} and parent_id = 0
+    </select>
+
+    <!--插入角色功能权限-->
+    <insert id="insertRoleApi" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.ArrayList">
+        INSERT INTO
+        sso_role_api(ID, ROLE_ID, API_ID, ENABLE_FLAG, CREATOR_ID, CREATE_TIME)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id},#{item.roleId},#{item.apiId},#{item.enableFlag},#{item.creatorId},#{item.createTime})
+        </foreach>
+    </insert>
+
+    <!--查询角色所有数据权限对应ID-->
+    <select id="selectAllDataId" resultType="java.lang.Integer">
+        select id from sso_data where ENABLE_FLAG = 1 and client_id = #{clientId} and is_all = 1
+    </select>
+
+    <!--查询角色list是否有全部功能权限-->
+    <select id="selectRoleIdListIsAllAPI" resultType="java.lang.Integer">
+        select count(*) from sso_role where ENABLE_FLAG = 1 and IS_ALL_API = 1
+        <if test="idList != null and idList.size()>0">
+            AND ID in
+            <foreach collection="idList" item="id" open="(" close=")" separator=",">
+                #{id, jdbcType = INTEGER}
+            </foreach>
+        </if>
+         LIMIT 1
+    </select>
+
+    <!--查询角色list是否有全部数据权限-->
+    <select id="selectRoleIdListIsAllData" resultType="java.lang.Integer">
+        select count(*) from sso_role where ENABLE_FLAG = 1 and IS_ALL_DATA = 1
+        <if test="idList != null and idList.size()>0">
+            AND ID in
+            <foreach collection="idList" item="id" open="(" close=")" separator=",">
+                #{id, jdbcType = INTEGER}
+            </foreach>
+        </if>
+        LIMIT 1
+    </select>
+
+    <!--插入角色数据权限-->
+    <insert id="insertRoleData" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.ArrayList">
+        INSERT INTO
+        sso_role_data(ID, ROLE_ID, DATA_ID, ENABLE_FLAG, CREATOR_ID, CREATE_TIME)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id},#{item.roleId},#{item.dataId},#{item.enableFlag},#{item.creatorId},#{item.createTime})
+        </foreach>
+    </insert>
+
+
+    <select id="selectRoleByClientId" resultMap="resultMap" parameterType="cloud.celldata.membrane.pojo.entity.ClientEntity">
+        select * from sso_role
+        <where>
+            <if test="id != null">
+                and client_id = #{id}
+            </if>
+        and ENABLE_FLAG =1
+        </where>
+        order by CONVERT(role_name USING gbk)
+    </select>
+
+    <select id="selectClientByRoleId" parameterType="java.lang.Integer" resultMap="clientMap">
+
+        select  c.id,c.app_name,c.app_id,c.app_key from sso_client c ,sso_role r
+
+        where r.id = #{id} and r.ENABLE_FLAG=1 and c.id=r.client_id
+    </select>
+
+    <!--修改角色信息-->
+    <update id="updateRole1" parameterType="cloud.celldata.membrane.pojo.entity.Role">
+        update sso_role
+        <set>
+            <if test="clientId != null">
+                CLIENT_ID = #{clientId,jdbcType=INTEGER},
+            </if>
+            <if test="roleName != null">
+                ROLE_NAME = #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test="enableFlag != null">
+                ENABLE_FLAG = #{enableFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creatorId != null">
+                CREATOR_ID = #{creatorId,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updaterId != null">
+                UPDATER_ID = #{updaterId,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                UPDATE_TIME = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isAllApi != null">
+                IS_ALL_API = #{isAllApi,jdbcType=INTEGER},
+            </if>
+            <if test="isAllData != null">
+                IS_ALL_DATA = #{isAllData,jdbcType=INTEGER},
+            </if>
+        </set>
+        where ID = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteExtra">
+        update sso_extra
+        set ENABLE_FLAG = 0, UPDATER_ID = #{updaterId}, UPDATE_TIME = now()
+        where ENABLE_FLAG = 1 and ROLE_ID = #{roleId}
+    </update>
+
+    <!--更新角色前删除角色数据权限-->
+    <delete id="deleteRoleData">
+        delete from sso_role_data
+        where ROLE_ID = #{roleId}
+    </delete>
+
+    <!--角色相关用户的更新时间-->
+    <update id="updateUserUpdateTime">
+        update sso_user set UPDATER_ID = #{updaterId,jdbcType=INTEGER}, UPDATE_TIME = now()
+        where ENABLE_FLAG = 1 and id in
+        (
+        select user_role.user_id name from
+        (
+        select * from sso_user_role where ENABLE_FLAG = 1
+        ) as user_role join
+        (
+        select * from sso_role where ENABLE_FLAG = 1 and id = #{roleId,jdbcType=INTEGER}
+        ) as role
+        on user_role.role_id = role.id
+        )
+    </update>
+
+    <!--删除角色-->
+    <update id="removeRole" parameterType="java.lang.Integer">
+      update sso_role set ENABLE_FLAG = 0,UPDATE_TIME = now(),UPDATER_ID= #{updateId} where id = #{roleId}
+    </update>
+
+    <update id="removeRoleApi" parameterType="java.lang.Integer">
+        update sso_role_api set ENABLE_FLAG = 0 ,UPDATE_TIME = now(),UPDATER_ID= #{updateId} where role_id = #{roleId}
+    </update>
+
+    <update id="removeRoleData" parameterType="java.lang.Integer">
+        update sso_role_data set ENABLE_FLAG = 0,UPDATE_TIME = now(),UPDATER_ID= #{updateId} where role_id = #{roleId}
+    </update>
+
+    <update id="removeRoleUser" parameterType="java.lang.Integer">
+        UPDATE sso_user_role set ENABLE_FLAG=0,UPDATE_TIME = now(),UPDATER_ID= #{updateId} where ROLE_ID = #{roleId}
+    </update>
+
+    <select id="getRoleByRoleId" resultMap="resultMap" parameterType="java.lang.Integer">
+        select * from sso_role
+        where id = #{id}
+        and ENABLE_FLAG =1
+    </select>
+
+    <select id="selectRoleByRoleName" resultMap="resultMap" parameterType="java.lang.String">
+        select * from sso_role where role_name =  #{roleName} and ENABLE_FLAG  = 1
+    </select>
+
+    <!--新增角色-->
+    <insert id="addRole" parameterType="cloud.celldata.membrane.pojo.entity.RoleEntity">
+        insert  into sso_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id!=null">
+                ID,
+            </if>
+            <if test="roleName!=null">
+                ROLE_NAME,
+            </if>
+            <if test="clientId!=null">
+                CLIENT_ID,
+            </if>
+            <if test="enableFlag!=null">
+                ENABLE_FLAG,
+            </if>
+            <if test="creatorId!=null">
+                CREATOR_ID,
+            </if>
+            <if test="createTime!=null">
+                CREATE_TIME,
+            </if>
+            <if test="updateId!=null">
+                UPDATER_ID,
+            </if>
+            <if test="updateTime!=null">
+                UPDATE_TIME,
+            </if>
+            <if test="isAllApi != null">
+                IS_ALL_API,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id!=null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="roleName!=null">
+                #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test="clientId!=null">
+                #{clientId,jdbcType=INTEGER},
+            </if>
+            <if test="enableFlag!=null">
+                #{enableFlag,jdbcType=INTEGER},
+            </if>
+            <if test="creatorId!=null">
+                #{creatorId,jdbcType=INTEGER},
+            </if>
+            <if test="createTime!=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateId!=null">
+                #{updateId,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isAllApi != null">
+                #{isAllApi,jdbcType=INTEGER},
+            </if>
+        </trim>
+        <!-- 指定结果类型resultType，keyProperty是属性，自动返回到属性id中，order是次序，after是指获取id是在于插入后 -->
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+
+
+</mapper>

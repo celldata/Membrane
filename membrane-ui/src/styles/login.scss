@@ -1,0 +1,166 @@
+@import "./base.scss";
+#login{
+	width:100%;
+	height:100%;
+	background: url('../../assets/image/login-bg.png') no-repeat;
+	background-size: 100% 100%;
+	.title-name{
+		padding:24px 0 0 62px;
+		img{
+			width:200px;
+		}
+	}
+	.login-container{
+		width:420px;
+		margin:150px auto 0;
+		.logo-img{
+			width:100%;
+			text-align:center;
+			font-size:32px;
+			color:#fff;
+			margin-bottom:30px;
+		}
+		.login-box{
+      padding-top:34px;
+      padding: 34px;
+      box-sizing: border-box;
+			width:100%;
+			height:320px;
+      background:#fff;
+      p.forget{
+        margin-top:20px;
+        color:#999;
+        text-align: right;
+        margin-right: 20px;
+      }
+      p.forget{
+        span{
+          cursor: pointer;
+        }
+        span:hover{
+          color:#194082 ;
+        }
+      }
+			.error{
+				color:#323232;
+				i{
+					color:#CC3D3D;
+					padding-right:3px;
+					font-size:14px;
+				}
+			}
+			.msg-e{
+        margin-left: 55px;
+				width:260px;
+				background:#FFF8F8;
+        line-height:28px;
+      }
+      #error-tip{
+        height:28px;
+        margin-bottom: 18px;
+      }
+
+			.el-form{
+				.el-form-item__label{
+					text-align: left !important;
+        }
+        // .msg-e.error{
+        //   margin-left:101px;
+        // }
+        // .el-form-item:nth-child(2){
+        //   margin-top:18px;
+        // }
+        .el-form-item{
+          margin-top:10px;
+        }
+				.err-msg{
+					color:#CC3D3D;
+					padding-left:55px;
+					height:16px;
+				}
+        .el-form-item{
+          margin-bottom: 0;
+          .el-form-item__label{
+            text-align: left !important;
+            padding: 0 6px 0 0;
+            font-weight:bold;
+          }
+          .el-form-item__error{
+            color:#CC3D3D !important;
+          }
+        }
+        .el-form-item__error{
+          padding-top: 0;
+        }
+        .el-radio{
+          margin-right: 5px !important;
+        }
+        .el-form-item .el-radio.is-bordered{
+          border:none;
+          padding:5px 0px 0px 0px;
+        }
+        .el-input{
+          width:260px;
+          .el-input__inner{
+            background:#E8EBF2 !important;
+            border:none !important;
+          }
+        }
+			}
+			.el-button{
+				display:block;
+				width:300px;
+				margin:25px auto 0;
+				background:#194082;
+				border:none;
+				border-radius:4px;
+				color:#fff;
+			}
+			.el-button:hover{
+				background:rgba(25,64,130,0.8);
+			}
+		}
+  }
+
+  .forgetPassWordDialog{
+    .el-dialog__title{
+      font-weight: bold;
+    }
+    .el-dialog .el-form .el-form-item__label {
+      text-align: left;
+    }
+    .el-dialog {
+      .el-form .el-form-item{
+        margin-bottom: 20px;
+        span.sendMsg{
+          font-size: 12px;
+          color:$y-color;
+        }
+      }
+      .el-select{
+        width: 100%;
+      }
+      .el-dialog__footer .el-button:last-child {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 1);
+        margin-right: 4px;
+      }
+      .btn{
+        text-align: center;
+        margin-top: 30px;
+        .el-button{
+          padding: 7px 25px;
+          font-size: 12px;
+        }
+        .el-button:last-child{
+          margin-left: 30px;
+        }
+      }
+    }
+
+    .getCode{
+      color: $new-font-color;
+    }
+  }
+
+}

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.UserManagementMapper">
+
+    <select id="selectUserById" parameterType="java.lang.Integer" resultType="cloud.celldata.membrane.pojo.entity.UserEntity">
+        select ID id, USER_NAME userName, FULL_NAME fullName, TELEPHONE telephone, PRIVILEGE privilege,UPDATER_ID updaterId,UPDATE_TIME updateTime
+        from sso_user
+        where ID = #{userId,jdbcType=INTEGER} and ENABLE_FLAG = 1
+    </select>
+
+    <select id="selectUserByUserName" parameterType="java.lang.String" resultType="cloud.celldata.membrane.pojo.entity.UserEntity">
+        select ID id, USER_NAME userName, FULL_NAME fullName, TELEPHONE telephone,EMAIL email, PRIVILEGE privilege
+        from sso_user
+        where USER_NAME = #{userName,jdbcType=VARCHAR} and ENABLE_FLAG = 1
+    </select>
+
+    <resultMap id="userInfoListMap" type="cloud.celldata.membrane.pojo.vo.UserInfoVO">
+        <id column="ID" jdbcType="INTEGER" property="id"/>
+        <result column="USER_NAME" jdbcType="VARCHAR" property="userName"/>
+        <result column="FULL_NAME" jdbcType="VARCHAR" property="fullName"/>
+        <result column="TELEPHONE" jdbcType="VARCHAR" property="telephone"/>
+        <result column="EMAIL" jdbcType="VARCHAR" property="email"/>
+        <result column="ROLE" jdbcType="VARCHAR" property="role"/>
+        <result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="UPDATER" jdbcType="VARCHAR" property="updater"/>
+        <association property="status" javaType="cloud.celldata.membrane.pojo.vo.OptionVO">
+            <result column="ACTIVE_FLAG" jdbcType="INTEGER" property="code" />
+            <result column="ACTIVE_VALUE" jdbcType="VARCHAR" property="name" />
+        </association>
+        <collection property="selectedRole" select="selectUserRoleList" column="ID">
+
+        </collection>
+    </resultMap>
+
+    <update id="updatePassword">
+        update sso_user
+        set PASSWORD = #{password,jdbcType=VARCHAR}, UPDATER_ID = #{updaterId,jdbcType=INTEGER}, UPDATE_TIME = now()
+        where ID = #{userId,jdbcType=INTEGER} and ENABLE_FLAG = 1
+    </update>
+
+    <select id="selectUserInfoList" resultMap="userInfoListMap">
+        select ux.ID, ux.USER_NAME, ux.FULL_NAME, ux.TELEPHONE, ux.EMAIL, (
+        select GROUP_CONCAT(t.role SEPARATOR '、')
+        from (
+        select r.ROLE_NAME role, ur.USER_ID
+        from sso_user_role ur
+        left join sso_role r on r.ID = ur.ROLE_ID
+        where ur.ENABLE_FLAG = 1 and r.ENABLE_FLAG = 1
+        order by CONVERT(r.ROLE_NAME USING gbk)
+        ) t, (select @rowNum:=0) rn
+        where t.USER_ID = ux.ID
+        ) ROLE, ux.UPDATE_TIME, (
+        select u.USER_NAME from sso_user u where u.ID = ux.UPDATER_ID and u.ENABLE_FLAG = 1
+        ) UPDATER, ux.ACTIVE_FLAG, (
+        case when ux.ACTIVE_FLAG=1 then '已启用' when ux.ACTIVE_FLAG=2 then '已禁用' end
+        ) ACTIVE_VALUE
+        from sso_user ux
+        where ux.ENABLE_FLAG = 1
+        <if test="clientId != null">
+            and ux.ID in (
+            SELECT distinct
+            i.ID
+            FROM
+            sso_user i
+            LEFT JOIN sso_user_role j ON i.ID = j.USER_ID
+            AND j.ENABLE_FLAG = 1
+            LEFT JOIN sso_role k ON j.ROLE_ID = k.ID
+            AND k.ENABLE_FLAG
+            WHERE i.ENABLE_FLAG
+            AND k.CLIENT_ID= #{clientId,jdbcType=INTEGER}
+            <if test="roleId !=null">
+                AND k.id = #{roleId,jdbcType=INTEGER}
+            </if>
+            )
+        </if>
+        <if test="statusCode != null">
+            and ux.ACTIVE_FLAG = #{statusCode,jdbcType=INTEGER}
+        </if>
+        <if test="(searchKey != null) and (searchKey != '')">
+            and (
+            (ux.USER_NAME like CONCAT('%', #{searchKey,jdbcType=VARCHAR}, '%'))
+            or
+            (ux.FULL_NAME like CONCAT('%', #{searchKey,jdbcType=VARCHAR}, '%'))
+            )
+        </if>
+        order by CONVERT(ux.FULL_NAME USING gbk)
+    </select>
+
+
+    <resultMap id="userRoleListMap" type="cloud.celldata.membrane.pojo.vo.SelectedClientRoleVO">
+        <id column="CLIENT_ID" jdbcType="INTEGER" property="clientId"/>
+        <collection property="roleIds" select="selectUserClientRoleList" column="{id=CLIENT_ID,userId=USER_ID}">
+
+        </collection>
+    </resultMap>
+    <select id="selectUserRoleList" resultMap="userRoleListMap">
+        select distinct r.CLIENT_ID, ur.USER_ID
+        from sso_user_role ur
+        left join sso_role r on r.ID = ur.ROLE_ID
+        where ur.USER_ID=#{id,jdbcType=INTEGER} and ur.ENABLE_FLAG=1 and r.ENABLE_FLAG=1
+    </select>
+
+    <select id="selectUserClientRoleList" resultType="java.lang.Integer">
+        select ur.ROLE_ID
+        from sso_user_role ur
+        left join sso_role r on r.ID = ur.ROLE_ID
+        where r.CLIENT_ID=#{id,jdbcType=INTEGER} and ur.USER_ID=#{userId,jdbcType=INTEGER} and ur.ENABLE_FLAG=1 and r.ENABLE_FLAG=1
+    </select>
+
+    <select id="countUserByUserName" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1) from sso_user where USER_NAME = #{userName,jdbcType=VARCHAR} and ENABLE_FLAG = 1
+    </select>
+
+    <select id="countUserByTelephone" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1) from sso_user where TELEPHONE = #{telephone,jdbcType=VARCHAR} and ENABLE_FLAG = 1
+    </select>
+
+    <select id="countUserByEmail" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1) from sso_user where EMAIL = #{email,jdbcType=VARCHAR} and ENABLE_FLAG = 1
+    </select>
+
+
+    <insert id="addUser" parameterType="cloud.celldata.membrane.pojo.entity.UserEntity" useGeneratedKeys="true" keyProperty="id">
+        insert into sso_user(USER_NAME, PASSWORD, FULL_NAME, TELEPHONE, EMAIL, LOGIN_NUM, ACTIVE_FLAG, PRIVILEGE, ENABLE_FLAG, CREATOR_ID, CREATE_TIME, UPDATER_ID, UPDATE_TIME)
+        value(
+        #{userName,jdbcType=VARCHAR},
+        #{password,jdbcType=VARCHAR},
+        #{fullName,jdbcType=VARCHAR},
+        #{telephone,jdbcType=VARCHAR},
+        #{email,jdbcType=VARCHAR},
+        0,
+        1,
+        #{privilege,jdbcType=INTEGER},
+        1,
+        #{creatorId,jdbcType=INTEGER},
+        now(),
+        #{creatorId,jdbcType=INTEGER},
+        now()
+        )
+    </insert>
+
+
+    <select id="selectPrivilegeRole" resultType="cloud.celldata.membrane.pojo.bo.PrivilegeRoleDTO">
+        select c.ID clientId, r.ID roleId
+        from sso_client c
+        inner join sso_role r on c.ID = r.CLIENT_ID
+        where c.ID = 1 and c.ENABLE_FLAG = 1 and r.ENABLE_FLAG = 1
+    </select>
+
+    <select id="selectPasswordByUserId" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select PASSWORD from sso_user where ID = #{userId,jdbcType=INTEGER} and ENABLE_FLAG = 1
+    </select>
+
+    <select id="userNameIsExist" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select COUNT(*) FROM sso_user where   USER_NAME = #{userName,jdbcType=VARCHAR } AND ENABLE_FLAG= 1
+    </select>
+
+    <select id="countUserByUserNameWithOutCurrent" resultType="java.lang.Integer">
+        select count(1)
+        from sso_user
+        where USER_NAME = #{userName,jdbcType=VARCHAR} and <![CDATA[ID<>#{userId,jdbcType=INTEGER}]]> and ENABLE_FLAG = 1
+    </select>
+
+    <select id="countUserByTelephoneWithOutCurrent" resultType="java.lang.Integer">
+        select count(1)
+        from sso_user
+        where TELEPHONE = #{telephone,jdbcType=VARCHAR} and <![CDATA[ID<>#{userId,jdbcType=INTEGER}]]> and ENABLE_FLAG = 1
+    </select>
+
+    <select id="countUserByEmailWithOutCurrent" resultType="java.lang.Integer">
+        select count(1)
+        from sso_user
+        where EMAIL = #{email,jdbcType=VARCHAR} and <![CDATA[ID<>#{userId,jdbcType=INTEGER}]]> and ENABLE_FLAG = 1
+    </select>
+
+    <update id="updateUser" parameterType="cloud.celldata.membrane.pojo.entity.UserEntity">
+        update sso_user
+        <set>
+            <if test="null!=userEntity.fullName and ''!=userEntity.fullName">
+                FULL_NAME = #{userEntity.fullName,jdbcType=VARCHAR},
+            </if>
+            <if test="null!=userEntity.telephone and ''!=userEntity.telephone">
+                TELEPHONE = #{userEntity.telephone,jdbcType=VARCHAR},
+            </if>
+            <if test="null != userEntity.email and ''!=userEntity.email">
+                EMAIL = #{userEntity.email,jdbcType=VARCHAR},
+            </if>
+            <if test="null != updaterId and ''!=updaterId">
+                UPDATER_ID = #{updaterId,jdbcType=INTEGER},
+            </if>
+            <if test="null != updaterId and ''!=updaterId">
+                UPDATE_TIME = now(),
+            </if>
+        </set>
+        <where>
+            ID = #{userEntity.id,jdbcType=INTEGER}
+        </where>
+    </update>
+
+    <update id="updateUserStatus">
+        update sso_user set
+        ACTIVE_FLAG = #{status,jdbcType=INTEGER},
+        UPDATER_ID = #{updaterId,jdbcType=INTEGER},
+        UPDATE_TIME = now()
+        where ID = #{userId,jdbcType=INTEGER}
+    </update>
+
+    <resultMap id="multiSelectorOptionMap" type="cloud.celldata.membrane.pojo.vo.MultiSelectorOptionVO">
+        <id column="ID" jdbcType="INTEGER" property="value"/>
+        <result column="APP_NAME" jdbcType="VARCHAR" property="label"/>
+        <collection property="children" select="selectChildrenOptions" column="ID">
+        </collection>
+    </resultMap>
+
+    <select id="selectRoleList" resultMap="multiSelectorOptionMap">
+        select ID, APP_NAME from sso_client where ENABLE_FLAG = 1 order by CONVERT(APP_NAME USING gbk)
+    </select>
+
+    <select id="selectChildrenOptions" resultType="cloud.celldata.membrane.pojo.vo.MultiSelectorOptionVO">
+        select ID `value`, ROLE_NAME label
+        from sso_role
+        where CLIENT_ID=#{id,jdbcType=INTEGER} and ENABLE_FLAG = 1 order by CONVERT(ROLE_NAME USING gbk)
+    </select>
+
+    <insert id="addUserRole">
+        insert into sso_user_role(USER_ID, ROLE_ID, ENABLE_FLAG, CREATOR_ID, CREATE_TIME) values
+        <foreach collection="list" item="userRole" separator="," close=";">
+            (
+            #{userRole.userId,jdbcType=INTEGER},
+            #{userRole.roleId,jdbcType=INTEGER},
+            1,
+            #{userRole.creatorId,jdbcType=INTEGER},
+            now()
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectRoleIdsByUserId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select distinct r.ID
+        from sso_role r
+        left join sso_user_role ur on r.ID = ur.ROLE_ID
+        left join sso_user u on u.ID = ur.USER_ID
+        where u.ID = #{userId,jdbcType=INTEGER}
+        and r.ENABLE_FLAG = 1 and ur.ENABLE_FLAG = 1 and u.ENABLE_FLAG = 1
+    </select>
+
+    <select id="selectRoleIdsByUserIdAndAppId" resultType="java.lang.Integer">
+        select distinct r.ID
+        from sso_role r
+        left join sso_user_role ur on r.ID = ur.ROLE_ID and ur.ENABLE_FLAG = 1
+        left join sso_user u on u.ID = ur.USER_ID and u.ENABLE_FLAG = 1
+        where u.ID = #{userId}
+		and r.CLIENT_ID = (select sso_client.ID from sso_client where APP_ID = #{appId})
+        and r.ENABLE_FLAG = 1
+    </select>
+
+    <update id="deleteUserRole">
+        update sso_user_role
+        set ENABLE_FLAG = 0, UPDATER_ID = #{updaterId,jdbcType=INTEGER}, UPDATE_TIME = now()
+        where USER_ID = #{userId,jdbcType=INTEGER}
+    </update>
+
+</mapper>

@@ -1,0 +1,72 @@
+@import "../base.scss";
+#auth-manage{
+  .el-dialog{
+    .el-dialog__body{
+      .app-content{
+        .el-tabs__content{
+          #scrollbar,#scrollbar1{
+            height: 550px;
+            overflow-y: auto;
+            .el-scrollbar__wrap{
+             overflow-x: hidden;
+            }
+          }
+          .tab-box{
+            max-height: 600px;
+            .el-form{
+              .el-form-item{
+                .el-select{
+                  width: 100%;
+                }
+                .el-radio-group{
+                  .el-radio.is-bordered{
+                    border: none;
+                  }
+                }
+                .el-input-number--mini{
+                  width: 100%;
+                }
+                .tips{
+                  display: block;
+                  font-size: 8px;
+                  height: 15px;
+                  line-height: 15px;
+                  color: #cccccc;
+                }
+              }
+              .mg10{
+                margin-left: 10px;
+              }
+              .top10{
+                padding-top: 5px;
+                box-sizing: border-box;
+              }
+            }
+          }
+          .detail-list{
+            ul>li{
+              display: flex;
+              height: 35px;
+              line-height: 35px;
+              flex-direction: row;
+              justify-content: space-between;
+              span{
+                width: 50%;
+                i{
+                  font-style: normal;
+                  color: $new-font-color;
+                }
+              }
+            }
+            ul>li.last{
+              span{
+                width: 100%;
+                word-wrap: break-word;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

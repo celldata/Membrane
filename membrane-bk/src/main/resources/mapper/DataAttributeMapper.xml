@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.DataAttributeMapper">
+
+    <insert id="addAttribute">
+        insert into sso_data_attribute
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="dataAttributeEntity.configId != null">
+                config_id,
+            </if>
+            <if test="dataAttributeEntity.attributeTag != null">
+                attribute_tag,
+            </if>
+            <if test="dataAttributeEntity.attributeName != null">
+                attribute_name,
+            </if>
+            <if test="dataAttributeEntity.attributeType != null">
+                attribute_type,
+            </if>
+            <if test="dataAttributeEntity.attributeDesc != null">
+                attribute_desc,
+            </if>
+            <if test="userId != null">
+                creator_id,
+            </if>
+            create_time, enable_flag
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="dataAttributeEntity.configId != null">
+                #{dataAttributeEntity.configId, jdbcType = INTEGER},
+            </if>
+            <if test="dataAttributeEntity.attributeTag != null">
+                #{dataAttributeEntity.attributeTag, jdbcType = VARCHAR},
+            </if>
+            <if test="dataAttributeEntity.attributeName != null">
+                #{dataAttributeEntity.attributeName, jdbcType = VARCHAR},
+            </if>
+            <if test="dataAttributeEntity.attributeType != null">
+                #{dataAttributeEntity.attributeType, jdbcType = INTEGER},
+            </if>
+            <if test="dataAttributeEntity.attributeDesc != null">
+                #{dataAttributeEntity.attributeDesc, jdbcType = VARCHAR},
+            </if>
+            <if test="userId != null">
+                #{userId, jdbcType = INTEGER},
+            </if>
+            now(), 1
+        </trim>
+    </insert>
+
+    <update id="updateAttribute">
+        update sso_data_attribute set
+        <if test="dataAttributeEntity.configId != null">
+            config_id = #{dataAttributeEntity.configId, jdbcType = INTEGER},
+        </if>
+        <if test="dataAttributeEntity.attributeTag != null">
+            attribute_tag = #{dataAttributeEntity.attributeTag, jdbcType = VARCHAR},
+        </if>
+        <if test="dataAttributeEntity.attributeName != null">
+            attribute_name = #{dataAttributeEntity.attributeName, jdbcType = VARCHAR},
+        </if>
+        <if test="dataAttributeEntity.attributeType != null">
+            attribute_type = #{dataAttributeEntity.attributeType, jdbcType = INTEGER},
+        </if>
+        <if test="dataAttributeEntity.attributeDesc != null">
+            attribute_desc = #{dataAttributeEntity.attributeDesc, jdbcType = VARCHAR},
+        </if>
+        <if test="userId != null">
+            updater_id = #{userId, jdbcType = INTEGER},
+        </if>
+        update_time = now()
+        where id = #{dataAttributeEntity.id, jdbcType = INTEGER}
+    </update>
+
+    <select id="selectAttributesByDataConfigId" parameterType="java.lang.Integer"
+            resultType="cloud.celldata.membrane.pojo.entity.DataAttributeEntity">
+        select attr.id id, attr.config_id configId, attr.attribute_tag attributeTag, attr.attribute_name attributeName,
+        attr.attribute_type attributeType, attr.attribute_desc attributeDesc, attr.create_time createTime, usr.USER_NAME userName,
+        (case when t.num > 0 then 1 else 0 end) status
+        from sso_data_attribute attr
+        left join sso_user usr on attr.creator_id = usr.ID and usr.ENABLE_FLAG = 1
+        left join (
+            select att_id, count(1) num from sso_scr_att_relation where enable_flag = 1 group by att_id
+        ) t on t.att_id = attr.id
+        where attr.config_id = #{dataConfigId, jdbcType = INTEGER} and attr.enable_flag = 1
+    </select>
+
+    <update id="removeAttribute">
+        update sso_data_attribute
+        set enable_flag = 0, updater_id = #{userId, jdbcType = INTEGER}, update_time = now()
+        where id in
+        <foreach collection="idList" item="id" open="(" close=")" separator=",">
+            #{id, jdbcType = INTEGER}
+        </foreach>
+    </update>
+
+    <select id="countDataAttribute" resultType="java.lang.Integer">
+        select count(1)
+        from sso_data_attribute
+        where enable_flag = 1
+        <if test="id != null">
+            and id <![CDATA[<>]]> #{id, jdbcType = INTEGER}
+        </if>
+        <if test="dataAttributeName != null">
+            and attribute_name = #{dataAttributeName, jdbcType = VARCHAR}
+        </if>
+    </select>
+
+</mapper>

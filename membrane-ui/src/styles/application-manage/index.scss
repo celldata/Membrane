@@ -1,0 +1,123 @@
+@import '../base.scss';
+
+#application-manage{
+	padding: 10px 24px;
+	width:100%;
+  background:$content-bgColor;
+
+	.table-container {
+		overflow: auto;
+    padding: 10px 0;
+
+    span.spanBtn{
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    span.spanBtn2{
+      cursor: pointer;
+    }
+
+    div.paging{
+      margin-top:10px;
+    }
+	}
+  .el-table {
+    background: transparent !important;
+    th {
+      background: $th-bg;
+      color: $new-font-color;
+      text-align: center;
+      font-size: 12px;
+      border: none;
+      border-right: 1px solid $content-bgColor;
+      height: 30px;
+      padding: 0;
+    }
+    tr {
+      td {
+        font-size: 12px;
+        color: $new-font-color;
+        background: $content-bgColor;
+        border-bottom: $td-border;
+        text-align: center;
+        .txt_underline {
+          color: $y-color;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        .operate{
+          color:$y-color;
+          margin-right: 3px;
+        }
+      }
+      .el-table__expanded-cell{
+        padding: 12px 9px;
+        background-color:#F5F5F5 ;
+        border: none !important;
+
+        .el-row{
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-start;
+        }
+        div.col-card{
+          display: flex;
+          flex-direction: row;
+          justify-self: start;
+
+          .app-child{
+            width: 25%;
+            margin-right: 10px;
+          }
+        }
+        div.col-card:last-child{
+          margin-right: 0;
+        }
+      }
+      .el-table__expanded-cell:hover{
+        background-color: #F5F5F5 !important;
+      }
+    }
+  }
+  .el-table::before {
+    height: 0;
+  }
+  .el-form {
+    .el-form-item {
+      margin-bottom: 19px;
+    }
+    .el-form-item__label {
+      text-align: left;
+    }
+    .mg10{
+      margin-left: 10px;
+      .el-button:disabled{
+        color: #A0C4F1;
+      }
+    }
+    .el-form-item__error {
+      padding-top: 0;
+      white-space: nowrap;
+    }
+
+    .uploadLogo{
+      display: flex;
+      height: 64px;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: baseline;
+      img{
+        margin-right: 12px;
+        width:96px;
+        height:64px
+      }
+
+      .el-button{
+        text-decoration: underline;
+      }
+    }
+  }
+
+}

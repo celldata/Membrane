@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.RoleAuthorityMapper">
+
+
+	<resultMap id="apiMap" type="cloud.celldata.membrane.pojo.vo.role.RoleApiBean">
+		<id column="roleId" jdbcType="INTEGER" property="roleId" />
+		<result column="ROLE_NAME" jdbcType="VARCHAR" property="roleName" />
+		<result column="CLIENT_ID" jdbcType="INTEGER" property="clientId" />
+		<result column="CLIENT_NAME" jdbcType="VARCHAR" property="clientName" />
+        <result column="IS_ALL_API" javaType="INTEGER" property="isAllApi"/>
+		<result column="IS_ALL_DATA" javaType="INTEGER" property="isAllData"/>
+	</resultMap>
+
+	<select id="selectRoleBasicByRoleId" parameterType="INTEGER" resultMap="apiMap">
+       SELECT
+          role.id as roleId,
+          role.ROLE_NAME,
+          client.ID as CLIENT_ID,
+          client.APP_NAME as CLIENT_NAME,
+          IS_ALL_API,
+          IS_ALL_DATA
+        FROM
+            sso_role as role
+        join sso_client as client on client.id=role.client_id and role.ENABLE_FLAG=1
+        and role.ID=#{roleId}
+    </select>
+
+
+	<resultMap id="AuthorityTokenMap" type="cloud.celldata.membrane.pojo.vo.AuthorityTokenBean">
+		<id column="apiId" jdbcType="INTEGER" property="id" />
+		<result column="API_DESC" jdbcType="VARCHAR" property="label" />
+		<result column="API_IS_DATA" jdbcType="INTEGER" property="haveData" />
+		<collection property="dataOauther" ofType="String">
+			<result column="DESC"/>
+		</collection>
+	</resultMap>
+
+	<!--根据用户id ，clientId查询 用户权限信息-->
+	<select id="selectAuthorityByUserIdAndClientId" resultMap="AuthorityTokenMap">
+         SELECT
+            userApi.userId,
+            userApi.API_DESC,
+            userApi.API_IS_DATA,
+            userData.DESC,
+            userApi.apiId
+      FROM
+	(
+	SELECT
+			a.userId,
+			a.roleId,
+			SA.ID as apiId,
+			SA.API_IS_DATA,
+			SA.API_DESC,
+			SA.PARENT_ID,
+            SA.API_NAME,
+            SA.URI
+		FROM
+			(
+				SELECT
+					u.id AS userId,
+					r.ID AS roleId,
+					api.API_IS_DATA,
+					api.PARENT_ID,
+					r.CLIENT_ID
+				FROM
+					sso_user AS u
+				LEFT JOIN sso_user_role AS ur ON ur.USER_ID = u.ID AND u.ENABLE_FLAG = 1 AND ur.ENABLE_FLAG = 1
+				LEFT JOIN sso_role AS r ON r.ID = ur.ROLE_ID AND r.ENABLE_FLAG = 1
+				LEFT JOIN sso_role_api AS ra ON ra.ROLE_ID = r.ID AND ra.ENABLE_FLAG = 1
+				LEFT JOIN sso_api AS api ON api.ID = ra.API_ID AND api.ENABLE_FLAG = 1
+				WHERE
+					api.PARENT_ID = 0 and u.ID=#{userId} and r.CLIENT_ID=#{clientId}
+			) AS a,
+			sso_api AS SA
+		WHERE
+			SA.PARENT_ID != 0 and a.userId=#{userId} and a.CLIENT_ID=#{clientId} and a.CLIENT_ID=SA.CLIENT_ID and SA.IS_TREE=1
+
+		UNION
+
+			SELECT
+				u.id AS userId,
+				r.ID as roleId,
+				api.ID as apiId,
+				api.API_IS_DATA,
+				api.API_DESC,
+				api.PARENT_ID,
+                api.API_NAME,
+                api.URI
+			FROM
+				sso_user AS u
+			LEFT JOIN sso_user_role AS ur ON ur.USER_ID = u.ID AND u.ENABLE_FLAG = 1 AND ur.ENABLE_FLAG = 1
+			LEFT JOIN sso_role AS r ON r.ID = ur.ROLE_ID AND r.ENABLE_FLAG = 1
+			LEFT JOIN sso_role_api AS ra ON ra.ROLE_ID = r.ID AND ra.ENABLE_FLAG = 1
+			LEFT JOIN sso_api AS api ON api.ID = ra.API_ID AND api.ENABLE_FLAG = 1
+			WHERE
+				api.PARENT_ID != 0 and u.ID=#{userId} and r.CLIENT_ID=#{clientId}
+	) AS userApi
+LEFT JOIN (
+	SELECT
+		b.userId,
+		b.roleId,
+		b.dataId,
+		b.DESC
+	FROM
+		(
+			SELECT
+				u.userId,
+				u.roleId,
+				u.dataId,
+				d2.DESC
+			FROM
+				(
+					SELECT
+						u.id AS userId,
+						role.id AS roleId,
+						dat.id AS dataId,
+						dat.IS_ALL,
+						role.client_id
+					FROM
+						sso_user AS u
+					LEFT JOIN sso_user_role AS rela ON rela.USER_ID = u.ID AND rela.ENABLE_FLAG = 1
+					LEFT JOIN sso_role AS role ON role.ID = rela.ROLE_ID AND role.ENABLE_FLAG = 1
+					LEFT JOIN sso_role_data AS rdata ON rdata.ROLE_ID = role.ID AND rdata.ENABLE_FLAG = 1
+					LEFT JOIN sso_data AS dat ON dat.ID = rdata.DATA_ID AND dat.ENABLE_FLAG = 1
+					WHERE
+						dat.IS_ALL = 1 and u.id=#{userId} and role.CLIENT_ID=#{clientId}
+				) AS u,
+				sso_data AS d2
+			WHERE
+				d2.client_id = u.client_id
+			AND (d2.IS_ALL != 1 OR d2.IS_ALL IS NULL)
+			and  u.userId=#{userId} and u.client_id=#{clientId}
+
+			UNION
+
+				SELECT
+					u.id AS userId,
+					role.id AS roleId,
+					dat.id AS dataId,
+					dat.DESC
+				FROM
+					sso_user AS u
+				LEFT JOIN sso_user_role AS rela ON rela.USER_ID = u.ID AND rela.ENABLE_FLAG = 1
+				LEFT JOIN sso_role AS role ON role.ID = rela.ROLE_ID AND role.ENABLE_FLAG = 1
+				LEFT JOIN sso_role_data AS rdata ON rdata.ROLE_ID = role.ID AND rdata.ENABLE_FLAG = 1
+				LEFT JOIN sso_data AS dat ON dat.ID = rdata.DATA_ID AND dat.ENABLE_FLAG = 1
+				WHERE dat.IS_ALL != 1 and u.id=#{userId} and role.client_id=#{clientId}
+) as b
+ where b.userId=#{userId}
+) AS userData ON userApi.roleId = userData.roleId
+    </select>
+
+
+
+
+
+
+	<resultMap id="menuMap" type="cloud.celldata.membrane.pojo.vo.role.MenuInfoBean">
+		<id column="id2" jdbcType="INTEGER" property="id" />
+		<result column="name2" jdbcType="VARCHAR" property="name" />
+		<result column="t2" jdbcType="INTEGER" property="tree" />
+		<collection property="children" ofType="cloud.celldata.membrane.pojo.vo.role.MenuInfoBean">
+			<id column="id3" jdbcType="INTEGER" property="id" />
+			<result column="name3" jdbcType="VARCHAR" property="name" />
+			<result column="t3" jdbcType="INTEGER" property="tree" />
+			<collection property="children" ofType="cloud.celldata.membrane.pojo.vo.role.MenuInfoBean">
+				<id column="id4" jdbcType="INTEGER" property="id" />
+				<result column="name4" jdbcType="VARCHAR" property="name" />
+				<result column="t4" jdbcType="INTEGER" property="tree" />
+			</collection>
+		</collection>
+	</resultMap>
+
+	<!--查询用户的菜单栏-->
+	<select id="selectMenuByUserIdAndClientId" resultMap="menuMap">
+
+		SELECT
+			api1.ID as id1,
+		  api1.API_DESC as name1,
+		  api1.IS_TREE as t1,
+
+		  api2.ID as id2,
+		  api2.API_DESC as name2,
+		  api2.IS_TREE as t2,
+
+		  api3.ID as id3,
+		  api3.API_DESC as name3,
+		  api3.IS_TREE as t3,
+
+		  api4.ID as id4,
+		  api4.API_DESC as name4,
+		  api4.IS_TREE as t4,
+
+		  api5.ID as id5,
+		  api5.API_DESC as name5,
+		  api5.IS_TREE as t5
+
+		FROM
+			sso_api as api1
+		 JOIN sso_api as api2 ON api1.ID=api2.PARENT_ID and api1.PARENT_ID=0
+		 LEFT JOIN sso_api as api3 ON api2.ID=api3.PARENT_ID
+		 LEFT JOIN sso_api as api4 ON api3.ID=api4.PARENT_ID
+		 LEFT JOIN sso_api as api5 ON api4.ID=api5.PARENT_ID
+
+		 ,
+		(
+			  SELECT
+			 api.ID
+		FROM
+			sso_user as u
+		JOIN sso_user_role as rela on rela.USER_ID=u.ID and u.ENABLE_FLAG=1 AND rela.ENABLE_FLAG=1
+		JOIN sso_role as role on role.ID=rela.ROLE_ID and role.ENABLE_FLAG=1
+		JOIN sso_role_api as ra on ra.ROLE_ID=role.ID and ra.ENABLE_FLAG=1
+		JOIN sso_api as api on api.ID=ra.API_ID and api.ENABLE_FLAG=1
+		WHERE u.ID=#{userId} AND role.CLIENT_ID=#{clientId} AND api.PARENT_ID!=0
+
+		union
+
+		SELECT
+					SA.ID
+				FROM
+					(
+						SELECT
+							u.id AS userId,
+							r.ID AS roleId,
+							api.API_IS_DATA,
+							api.PARENT_ID,
+							r.CLIENT_ID
+						FROM
+							sso_user AS u
+						LEFT JOIN sso_user_role AS ur ON ur.USER_ID = u.ID AND u.ENABLE_FLAG = 1 AND ur.ENABLE_FLAG = 1
+						LEFT JOIN sso_role AS r ON r.ID = ur.ROLE_ID AND r.ENABLE_FLAG = 1
+						LEFT JOIN sso_role_api AS ra ON ra.ROLE_ID = r.ID AND ra.ENABLE_FLAG = 1
+						LEFT JOIN sso_api AS api ON api.ID = ra.API_ID AND api.ENABLE_FLAG = 1
+						WHERE
+							api.PARENT_ID = 0 and u.ID=#{userId} and r.CLIENT_ID=#{clientId}
+					) AS a,
+					sso_api AS SA
+				WHERE
+					SA.PARENT_ID != 0 and a.userId=#{userId} and a.CLIENT_ID=#{clientId} and a.CLIENT_ID=SA.CLIENT_ID AND SA.IS_TREE=1
+
+
+		) as alist
+
+		where api3.ID in (alist.ID)  or api4.ID in (alist.ID) or api5.ID in (alist.ID) or api2.ID in (alist.ID)
+
+	</select>
+
+	<resultMap id="ExtraMap" type="cloud.celldata.membrane.pojo.bo.ExtraBO">
+		<result column="EXTRA_NAME" property="name" jdbcType="VARCHAR"/>
+		<result column="EXTRA_VALUE" property="value" jdbcType="VARCHAR"/>
+		<result column="EXTRA_DESC" property="desc" jdbcType="VARCHAR"/>
+	</resultMap>
+	<select id="selectExtraListByRoleId" resultMap="ExtraMap">
+        select EXTRA_NAME, EXTRA_VALUE, EXTRA_DESC from sso_extra where ENABLE_FLAG = 1 and ROLE_ID = #{roleId}
+    </select>
+
+    <select id="selectRoleApiIDListByRoleId" resultType="java.lang.Integer">
+		select sso_role_api.API_ID from sso_role_api where ROLE_ID = #{roleId} and ENABLE_FLAG = 1
+	</select>
+
+	<select id="selectRoleApiIDListByRoleIdList" resultType="java.lang.Integer">
+		select sso_role_api.API_ID from sso_role_api where
+		ROLE_ID = #{roleId} and ENABLE_FLAG = 1
+	</select>
+
+
+    <resultMap id="moduleListMap" type="cloud.celldata.membrane.pojo.vo.ModuleBean">
+        <id column="moduleId" jdbcType="INTEGER" property="moduleId"/>
+        <result column="moduleClientId" jdbcType="INTEGER" property="clientId"/>
+        <result column="moduleName" jdbcType="VARCHAR" property="moduleName"/>
+        <collection property="functionList" ofType="cloud.celldata.membrane.pojo.vo.FunctionBean">
+            <id column="functionId" jdbcType="INTEGER" property="functionId"/>
+            <result column="functionClientIdId" jdbcType="INTEGER" property="clientId"/>
+            <result column="functionName" jdbcType="VARCHAR" property="functionName"/>
+            <result column="TYPE" jdbcType="INTEGER" property="apiType"/>
+            <collection property="apiUrlList" ofType="java.lang.String">
+                <constructor>
+                    <arg column="apiUrlList"/>
+                </constructor>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <!--根据平台id查询功能列表以及对应URI-->
+    <select id="selectModuleAndFunctionByApiIdList" resultMap="moduleListMap">
+        SELECT
+        api1.ID AS moduleId,
+        api1.API_NAME AS moduleName,
+        api1.CLIENT_ID AS moduleClientId,
+        api2.ID AS functionId,
+        api2.CLIENT_ID AS functionClientIdId,
+        api2.API_NAME AS functionName,
+        api2.TYPE,
+        k.URI AS apiUrlList
+        FROM
+        sso_api AS api1
+        right JOIN sso_api AS api2 ON api1.ID = api2.PARENT_ID
+        AND api2.ENABLE_FLAG = 1
+        LEFT JOIN sso_api_uri j ON api2.ID = j.API_ID
+        AND j.ENABLE_FLAG = 1
+        LEFT JOIN sso_uri k ON j.URI_ID = k.ID
+        AND k.ENABLE_FLAG = 1
+        WHERE
+        api1.CLIENT_ID = #{clientId}
+        AND api1.PARENT_ID = 0
+        AND api1.ENABLE_FLAG = 1
+        AND api2.IS_TREE = 1
+        <if test="list!=null  and list.size()>0">
+            AND api2.ID IN
+            <foreach collection="list" index="index" item="item" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY CONVERT (moduleName USING gbk),CONVERT (functionName USING gbk)
+    </select>
+
+
+	<select id="selectModuleAndFunctionByRoleIdList" resultMap="moduleListMap">
+		  SELECT
+        api1.ID AS moduleId,
+        api1.API_NAME AS moduleName,
+        api1.CLIENT_ID AS moduleClientId,
+        api2.ID AS functionId,
+        api2.CLIENT_ID AS functionClientIdId,
+        api2.API_NAME AS functionName,
+        api2.TYPE,
+        k.URI AS apiUrlList
+        FROM
+        sso_api AS api1
+        right JOIN sso_api AS api2 ON api1.ID = api2.PARENT_ID
+        AND api2.ENABLE_FLAG = 1
+        LEFT JOIN sso_api_uri j ON api2.ID = j.API_ID
+        AND j.ENABLE_FLAG = 1
+        LEFT JOIN sso_uri k ON j.URI_ID = k.ID
+        AND k.ENABLE_FLAG = 1
+		LEFT JOIN sso_role_api m on api2.ID = m.API_ID
+		AND m.ENABLE_FLAG = 1
+        WHERE
+         api1.PARENT_ID = 0
+        AND api1.ENABLE_FLAG = 1
+        AND api2.IS_TREE = 1
+		<if test="list!=null  and list.size()>0">
+			AND m.ROLE_ID IN
+			<foreach collection="list" index="index" item="item" open="("
+					 separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+
+	</select>
+
+</mapper>

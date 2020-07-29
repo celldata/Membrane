@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.DataConfigMapper">
+
+    <select id="countDataConfigName" resultType="java.lang.Integer" >
+        SELECT
+            count(*)
+        FROM
+            sso_data_config
+        WHERE
+            enable_flag = 1
+        AND config_name = #{name}
+        AND client_id = #{clientId}
+        <if test="id != null">
+            AND <![CDATA[id<>#{id,jdbcType=INTEGER}]]>
+        </if>
+        LIMIT 1
+    </select>
+
+    <insert id="addDataConfig">
+        INSERT INTO sso_data_config(client_id,config_tag,config_desc,config_name,config_type,enable_flag,creator_id,create_time)
+        VALUES(#{dataConfig.clientId},#{dataConfig.tag},#{dataConfig.desc},#{dataConfig.name},#{dataConfig.type},1,#{userId},now())
+    </insert>
+
+    <update id="updateDataConfig">
+        UPDATE sso_data_config
+        <set>
+            <if test="null != dataConfig.tag">
+                config_tag = #{dataConfig.tag},
+            </if>
+            <if test="null != dataConfig.desc">
+                config_desc = #{dataConfig.desc},
+            </if>
+            <if test="null != dataConfig.name">
+                config_name = #{dataConfig.name},
+            </if>
+            <if test="null != dataConfig.type">
+                config_type = #{dataConfig.type},
+            </if>
+            update_time = now(),
+            updater_id = #{userId,jdbcType=INTEGER}
+        </set>
+        <where>
+            enable_flag = 1
+            and id = #{dataConfig.id,jdbcType=INTEGER}
+        </where>
+    </update>
+
+    <update id="removeDataConfig">
+        UPDATE sso_data_config
+        SET
+        enable_flag =0,
+        update_time = now(),
+        updater_id = #{userId,jdbcType=INTEGER}
+        where id in
+        <foreach collection="idList" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <resultMap id="dateConfigList" type="cloud.celldata.membrane.pojo.entity.DataConfigEntity">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="client_id" jdbcType="INTEGER" property="clientId" />
+        <result column="config_tag" jdbcType="VARCHAR" property="tag" />
+        <result column="config_desc" jdbcType="VARCHAR" property="desc" />
+        <result column="config_name" jdbcType="VARCHAR" property="name"/>
+        <result column="config_type" jdbcType="INTEGER" property="type"/>
+        <result column="USER_NAME" jdbcType="VARCHAR" property="userName"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <select id="selectDateConfigEntity" resultMap="dateConfigList">
+        SELECT
+        i.id,
+        i.client_id,
+        i.config_tag,
+        i.config_desc,
+        i.config_name,
+        i.config_type,
+        i.create_time,
+        j.USER_NAME
+        FROM
+        sso_data_config i
+        LEFT JOIN sso_user AS j ON i.creator_id = j.ID and j.ENABLE_FLAG =1
+        WHERE
+        i.enable_flag = 1
+        AND i.client_id = #{clientId}
+        <if test="type != null">
+            AND i.config_type = #{type}
+        </if>
+    </select>
+
+    <select id="countDataConfig" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM
+          sso_data_config
+        WHERE
+          enable_flag = 1
+        AND  client_id = #{clientId}
+        <if test="type != null">
+            AND config_type = #{type}
+        </if>
+    </select>
+
+</mapper>

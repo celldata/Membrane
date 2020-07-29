@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cloud.celldata.membrane.mapper.UserMapper">
+    <resultMap id="userMap" type="cloud.celldata.membrane.pojo.entity.UserEntity">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR" />
+        <result column="full_Name" property="fullName" jdbcType="VARCHAR" />
+        <result column="telephone" property="telephone" jdbcType="VARCHAR" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
+        <result column="login_num" property="loginNum" jdbcType="INTEGER"/>
+        <result column="ACTIVE_FLAG" property="activeFlag" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <select id="getUserByUser" parameterType="cloud.celldata.membrane.pojo.entity.UserEntity" resultMap="userMap">
+        select
+        ID,
+        USER_NAME,
+        PASSWORD,
+        FULL_NAME,
+        TELEPHONE,
+        EMAIL,
+        LOGIN_NUM,
+        ACTIVE_FLAG
+        from sso_user
+        <where>
+            <if test="id!=null and ''!=id">
+                ID=#{id}
+            </if>
+            <if test="userName!=null and ''!=userName">
+                and USER_NAME=#{userName}
+            </if>
+            <if test="password!=null and ''!=password">
+                and PASSWORD=#{password}
+            </if>
+            <if test="telephone!=null and ''!=telephone">
+                and TELEPHONE=#{telephone}
+            </if>
+            <if test="email!=null and ''!=email">
+                and EMAIL=#{email}
+            </if>
+
+        </where>
+    </select>
+
+    <select id="selectUserByRoleId" parameterType="Integer" resultType="Integer">
+        SELECT
+            u.ID
+        FROM
+            sso_role as role
+         JOIN sso_user_role as rela on rela.ROLE_ID=role.ID and rela.ENABLE_FLAG=1 and role.ENABLE_FLAG=1
+         JOIN sso_user as u on u.ID=rela.USER_ID and u.ENABLE_FLAG=1
+        where role.id=#{roleId}
+    </select>
+    
+    <select id="selectIsALLApiByUserIdAndAppId" resultType="java.lang.Integer">
+        SELECT
+            DISTINCT
+            i.IS_ALL_API
+        FROM
+            sso_role i
+        LEFT JOIN sso_user_role j ON i.ID = j.ROLE_ID
+        AND j.ENABLE_FLAG = 1
+        WHERE
+            i.ENABLE_FLAG = 1
+        AND i.CLIENT_ID = #{appId}
+        AND j.USER_ID = #{userId}
+    </select>
+
+    <select id="selectUriListByAppIdAndUserId" resultType="java.lang.String">
+        SELECT
+            DISTINCT
+            i.URI
+        FROM
+            sso_uri i
+        INNER JOIN sso_api_uri j ON i.ID = j.URI_ID
+        AND j.ENABLE_FLAG = 1
+        INNER JOIN sso_api k ON j.API_ID = k.ID
+        AND k.ENABLE_FLAG = 1
+        AND k.API_NUM = 2
+        INNER JOIN sso_role_api n ON n.API_ID = k.ID
+        AND n.ENABLE_FLAG = 1
+        INNER JOIN sso_role m ON m.ID = n.ROLE_ID
+        AND m.ENABLE_FLAG = 1
+        INNER JOIN sso_user_role p ON p.ROLE_ID = m.ID
+        AND p.ENABLE_FLAG = 1
+        INNER JOIN sso_user x ON x.ID = p.USER_ID
+        AND x.ENABLE_FLAG = 1
+        WHERE
+            i.ENABLE_FLAG = 1
+        AND x.ID = #{userId}
+        AND m.CLIENT_ID = #{appId}
+
+    </select>
+
+    <select id="selectExternalAuthUserNameList" resultType="java.lang.String">
+        SELECT
+            USER_NAME
+        FROM
+            sso_user
+        WHERE
+        ENABLE_FLAG = 1
+        AND VERIFICATION = #{verification}
+        AND EXTERNAL_AUTH_ID = #{externalAuthId}
+    </select>
+
+    <insert id="addExternalAuthUser">
+        INSERT INTO sso_user(USER_NAME,AUTHENTICATION,VERIFICATION,EXTERNAL_AUTH_ID,ENABLE_FLAG,CREATOR_ID,CREATE_TIME)
+        VALUES
+        <foreach  collection="list" item = "item" index = "index" separator=",">
+            (#{item.userName},1,#{item.verification},#{item.externalAuthId},1,1,now())
+        </foreach>
+    </insert>
+
+    <update id="removeExternalAuthUser">
+        UPDATE sso_user
+        SET
+        enable_flag =0,
+        update_time = now(),
+        updater_id = 1
+        where
+        EXTERNAL_AUTH_ID = #{externalAuthId}
+        AND
+        USER_NAME in
+        <foreach collection="userList" open="(" close=")" item="userName" separator=",">
+            #{userName}
+        </foreach>
+    </update>
+
+</mapper>
