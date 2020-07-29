@@ -75,7 +75,7 @@ Membrane是一个互联网应用基础组件，基于SpringBoot、SpringCloud、
 ## 体验线上环境
 请扫描如下微信二维码，或添加微信号：membrane001，联系工作人员开通体验账号。
 
-![image](https://github.com/celldata/Membrane/blob/master/image/WeChat.jpg)
+![image](https://membrane-github.oss-cn-beijing.aliyuncs.com/image/WeChat.jpg)
 
 
 [点我体验演示环境](http://sso.i.lsctl.com)
