@@ -2,7 +2,8 @@
 
 ## 介绍
 
-​        本文介绍业务平台对接SSO系统的流程与注意事项。
+​        本文介绍业务平台对接SSO系统的流程与注意事项<br/>
+相关插件见项目[sdk模块](https://github.com/celldata/Membrane/tree/master/sdk)
 
 ## 参数配置
 
