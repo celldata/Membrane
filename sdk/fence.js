@@ -15,3 +15,4 @@ const fence = Vue.directive('fence', { //自定义指令
 });
 
 export { fence };
+
