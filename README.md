@@ -66,11 +66,12 @@ Membrane是一个互联网应用基础组件，基于SpringBoot、SpringCloud、
 
 ## 文档列表
 1. [安装部署文档](https://github.com/celldata/Membrane/blob/master/docs/Membrane%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3.md)
-2. 开发文档
+2. [业务流程时序图]（https://membrane-github.oss-cn-beijing.aliyuncs.com/image/%E6%97%B6%E5%BA%8F%E5%9B%BE.png）
+3. 开发文档
 - [前端开发文档](https://github.com/celldata/Membrane/blob/master/docs/Membrane%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E6%96%87%E6%A1%A3.md)
 - [API文档](https://github.com/celldata/Membrane/blob/master/docs/Membrane_API.md)
 - [业务系统后台对接Membrane说明文档](https://github.com/celldata/Membrane/blob/master/docs/%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E5%90%8E%E5%8F%B0%E5%AF%B9%E6%8E%A5Membrane%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3.md)
-3. 使用文档
+4. 使用文档
 - [用户手册](https://github.com/celldata/Membrane/blob/master/docs/Membrane%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md)
 ## 体验demo环境
 如您想体验demo环境，请发送申请邮件到membrane@celldata.cloud，会有工作人员为您开通体验账号。<br/>
