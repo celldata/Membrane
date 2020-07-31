@@ -66,7 +66,7 @@ Membrane是一个互联网应用基础组件，基于SpringBoot、SpringCloud、
 
 ## 文档列表
 1. [安装部署文档](https://github.com/celldata/Membrane/blob/master/docs/Membrane%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3.md)
-2. [业务流程时序图]（https://membrane-github.oss-cn-beijing.aliyuncs.com/image/%E6%97%B6%E5%BA%8F%E5%9B%BE.png）
+2. [业务流程时序图](https://membrane-github.oss-cn-beijing.aliyuncs.com/image/%E6%97%B6%E5%BA%8F%E5%9B%BE.png)
 3. 开发文档
 - [前端开发文档](https://github.com/celldata/Membrane/blob/master/docs/Membrane%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E6%96%87%E6%A1%A3.md)
 - [API文档](https://github.com/celldata/Membrane/blob/master/docs/Membrane_API.md)
